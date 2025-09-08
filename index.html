@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Museo Virtual Realista</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="container"></div>
+    
+    <div id="infoPanel">
+        <span id="closeButton">&times;</span>
+        <h2 id="paintingTitle"></h2>
+        <p id="paintingArtist"></p>
+        <p id="paintingDescription"></p>
+    </div>
+    
+    <div id="instructions">
+        <h3>Controles</h3>
+        <ul>
+            <li><span class="key">W</span> Moverse hacia adelante</li>
+            <li><span class="key">S</span> Moverse hacia atrás</li>
+            <li><span class="key">A</span> Moverse a la izquierda</li>
+            <li><span class="key">D</span> Moverse a la derecha</li>
+            <li><span class="key">Shift</span> Correr (aumentar velocidad)</li>
+            <li><span class="key">Mouse</span> Mirar alrededor</li>
+            <li><span class="key">Click</span> Interactuar con pinturas</li>
+            <li><span class="key">ESC</span> Liberar mouse</li>
+        </ul>
+    </div>
+    
+    <div id="speedControl">
+        <label for="speedSlider">Velocidad de movimiento:</label>
+        <input type="range" id="speedSlider" min="25" max="70" value="45">
+    </div>
+    
+    <div id="startScreen">
+        <h1>Galería de Arte Realista</h1>
+        <p>Explora este museo virtual con obras maestras del arte mundial en alta calidad. Experimenta un entorno realista con modelos 3D auténticos y una iluminación cinematográfica.</p>
+        <button id="startButton">Iniciar Experiencia</button>
+        <div id="loadingText">
+            <div class="loading"></div>
+            <span>Cargando modelos 3D...</span>
+        </div>
+        <div id="loadingProgress">
+            <div id="progressBar"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

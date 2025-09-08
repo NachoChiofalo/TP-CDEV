@@ -1,0 +1,262 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0c0c1a, #1a1a2e);
+    color: #fff;
+}
+
+#container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+#infoPanel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 700px;
+    background: rgba(15, 15, 25, 0.95);
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0 0 40px rgba(218, 165, 32, 0.7);
+    z-index: 100;
+    display: none;
+    backdrop-filter: blur(12px);
+    border: 2px solid #daa520;
+}
+
+#closeButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    font-size: 28px;
+    font-weight: bold;
+    color: #daa520;
+    transition: color 0.3s;
+}
+
+#closeButton:hover {
+    color: #ff9900;
+}
+
+#paintingTitle {
+    font-size: 36px;
+    margin-bottom: 15px;
+    color: #daa520;
+    text-align: center;
+    border-bottom: 2px solid rgba(218, 165, 32, 0.4);
+    padding-bottom: 15px;
+}
+
+#paintingArtist {
+    font-size: 22px;
+    margin-bottom: 25px;
+    text-align: center;
+    font-style: italic;
+    color: #ddd;
+}
+
+#paintingDescription {
+    font-size: 18px;
+    line-height: 1.7;
+    margin-bottom: 25px;
+    text-align: justify;
+    color: #f0f0f0;
+}
+
+#instructions {
+    position: absolute;
+    bottom: 25px;
+    left: 25px;
+    background: rgba(10, 10, 20, 0.85);
+    padding: 20px;
+    border-radius: 12px;
+    font-size: 16px;
+    max-width: 320px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+}
+
+#instructions h3 {
+    color: #daa520;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 20px;
+}
+
+#instructions ul {
+    list-style-type: none;
+    padding-left: 5px;
+}
+
+#instructions li {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.key {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin-right: 15px;
+    font-family: monospace;
+    border: 1px solid rgba(218, 165, 32, 0.3);
+    min-width: 45px;
+    text-align: center;
+    font-size: 16px;
+}
+
+#startScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 5, 15, 0.98);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+}
+
+#startScreen h1 {
+    font-size: 60px;
+    margin-bottom: 30px;
+    color: #daa520;
+    text-shadow: 0 0 20px rgba(218, 165, 32, 0.8);
+    text-align: center;
+}
+
+#startScreen p {
+    font-size: 24px;
+    margin-bottom: 50px;
+    max-width: 800px;
+    text-align: center;
+    line-height: 1.6;
+    color: #e0e0e0;
+}
+
+#startButton {
+    background: linear-gradient(to right, #daa520, #ff9900);
+    border: none;
+    padding: 20px 60px;
+    font-size: 24px;
+    border-radius: 60px;
+    cursor: pointer;
+    color: #000;
+    font-weight: bold;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 6px 25px rgba(218, 165, 32, 0.6);
+    letter-spacing: 1px;
+}
+
+#startButton:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(218, 165, 32, 0.8);
+}
+
+.loading {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #daa520;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 15px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+#loadingText {
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+#speedControl {
+    position: absolute;
+    bottom: 25px;
+    right: 25px;
+    background: rgba(10, 10, 20, 0.85);
+    padding: 18px;
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#speedControl label {
+    display: block;
+    margin-bottom: 12px;
+    color: #daa520;
+    font-size: 16px;
+}
+
+#speedSlider {
+    width: 220px;
+    height: 8px;
+    -webkit-appearance: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    outline: none;
+}
+
+#speedSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #daa520;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(218, 165, 32, 0.8);
+}
+
+.art-label {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border: 1px solid rgba(218, 165, 32, 0.3);
+}
+
+#loadingProgress {
+    width: 400px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #daa520, #ff9900);
+    border-radius: 10px;
+    transition: width 0.5s;
+}
