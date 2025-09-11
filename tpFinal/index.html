@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Museo Virtual 3D - Three.js</title>
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Interfaz de usuario -->
+  <div id="interfazUsuario">
+    <div id="instrucciones">
+      <h3>Controles del Museo Virtual</h3>
+      <p><strong>WASD:</strong> Moverse</p>
+      <p><strong>Mouse:</strong> Mirar alrededor</p>
+      <p><strong>Click:</strong> Activar controles</p>
+      <p><strong>ESC:</strong> Salir del modo vista</p>
+    </div>
+    <div id="infoFPS">FPS: <span id="contadorFPS">60</span></div>
+  </div>
+
+  <!-- Canvas donde se renderiza la escena -->
+  <canvas id="miCanvas"></canvas>
+
+  <!-- Bloqueador para cuando se pierde el pointer lock -->
+  <div id="bloqueador">
+    <div id="menuInicio">
+      <h1>Museo Virtual 3D</h1>
+      <p>Una experiencia inmersiva en primera persona</p>
+      <button id="botonIniciar">Entrar al Museo</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="libs/three.min.js"></script> 
+  <script>
+    // Verificar que Three.js se haya cargado
+    if (typeof THREE === 'undefined') {
+      console.error('Three.js no se cargó correctamente');
+      alert('Error cargando Three.js. Verifica la ruta del archivo.');
+    } else {
+      console.log('Three.js cargado correctamente, versión:', THREE.REVISION);
+    }
+  </script>
+  <script src="main_fixed.js"></script>
+</body>
+</html>
