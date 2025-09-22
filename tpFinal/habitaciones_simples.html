@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Museo Virtual - Gran Sala</title>
+
+  <style>
+    /* Estilos generales */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Arial', sans-serif;
+      background-color: #1a1a1a;
+      color: white;
+    }
+
+    canvas {
+      display: block;
+      cursor: grab;
+    }
+
+    canvas:active {
+      cursor: grabbing;
+    }
+
+    /* Interfaz de usuario */
+    #interfazUsuario {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    #instrucciones {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px 20px;
+      border-radius: 10px;
+      border: 2px solid #d4af37;
+      backdrop-filter: blur(10px);
+      max-width: 300px;
+    }
+
+    #instrucciones h3 {
+      color: #d4af37;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    #instrucciones p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #e0e0e0;
+    }
+
+    #instrucciones strong {
+      color: #d4af37;
+    }
+
+    /* Contador de FPS */
+    #infoFPS {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 1px solid #d4af37;
+      font-size: 14px;
+      font-weight: bold;
+      color: #d4af37;
+    }
+
+    /* Pantalla de bloqueo */
+    #bloqueador {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #menuInicio {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 40px;
+      border-radius: 15px;
+      border: 3px solid #d4af37;
+      backdrop-filter: blur(10px);
+      max-width: 400px;
+    }
+
+    #menuInicio h1 {
+      color: #d4af37;
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Información de obras de arte */
+    .info-obra {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #d4af37;
+      max-width: 400px;
+      text-align: center;
+      display: none;
+      z-index: 200;
+    }
+
+    .info-obra h3 {
+      color: #d4af37;
+      margin-bottom: 10px;
+    }
+
+    .info-obra p {
+      margin: 5px 0;
+      line-height: 1.4;
+    }
+
+    #menuInicio p {
+      color: #e0e0e0;
+      font-size: 1.2em;
+      margin-bottom: 30px;
+      line-height: 1.4;
+    }
+
+    #botonIniciar {
+      background: linear-gradient(45deg, #d4af37, #f4d03f);
+      color: #1a1a1a;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #botonIniciar:hover {
+      background: linear-gradient(45deg, #f4d03f, #d4af37);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+    }
+
+    #botonIniciar:active {
+      transform: translateY(0);
+    }
+
+    /* Estado oculto */
+    .oculto {
+      display: none !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      #instrucciones {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        max-width: none;
+        font-size: 12px;
+      }
+
+      #infoFPS {
+        top: 10px;
+        right: 10px;
+        font-size: 12px;
+      }
+
+      #menuInicio {
+        margin: 20px;
+        padding: 30px;
+      }
+
+      #menuInicio h1 {
+        font-size: 2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Interfaz de usuario -->
+  <div id="interfazUsuario">
+    <div id="instrucciones">
+      <h3>Controles del Museo Virtual</h3>
+      <p><strong>WASD:</strong> Moverse</p>
+      <p><strong>Mouse:</strong> Mirar alrededor</p>
+      <p><strong>Click:</strong> Activar controles</p>
+      <p><strong>ESC:</strong> Salir del modo vista</p>
+    </div>
+    <div id="infoFPS">FPS: <span id="contadorFPS">60</span></div>
+  </div>
+
+  <!-- Canvas donde se renderiza la escena -->
+  <canvas id="miCanvas"></canvas>
+
+  <!-- Bloqueador para cuando se pierde el pointer lock -->
+  <div id="bloqueador">
+    <div id="menuInicio">
+      <h1>Museo Virtual - Gran Sala</h1>
+      <p>Explora esta galería con obras maestras del arte</p>
+      <button id="botonIniciar">Entrar al Museo</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+
+    <!-- Three.js -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+
+    <!-- GLTFLoader -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+
+  <script>
+    // Verificar que Three.js se haya cargado
+    if (typeof THREE === 'undefined') {
+      console.error('Three.js no se cargó correctamente');
+      alert('Error cargando Three.js. Verifica la ruta del archivo.');
+    } else {
+      console.log('Three.js cargado correctamente, versión:', THREE.REVISION);
+    }
+  </script>
+  <script>
+    // ========================
+    // CONFIGURACIÓN INICIAL
+    // ========================
+
+    // Variables principales de la escena
+    let escena, camara, renderizador;
+    let reloj;
+    let objetosColision = [];
+    let cargadorTexturas;
+
+    // Variables de control
+    let teclasPulsadas = {};
+    let velocidadMovimiento = 5.0;
+
+    // Variables de juego
+    let cuadroGanador = null;
+    let juegoTerminado = false;
+    let meshCuadros = [];
+
+    // Variables de rendimiento
+    let ultimoTiempo = 0;
+    let contadorFrames = 0;
+    let tiempoFPS = 0;
+
+    // Variables de cámara
+    let rotacionY = 0; // Horizontal (yaw)
+    let rotacionX = 0; // Vertical (pitch)
+    let sensibilidadMouse = 0.002;
+
+    // Dimensiones de cada habitación individual
+    const DIMENSIONES_SALA = {
+        ancho: 30,
+        alto: 6,
+        profundo: 20
+    };
+
+    // Dimensiones totales del área (6 habitaciones + pasillos)
+    const DIMENSIONES_TOTALES = {
+        ancho: 240, // 6 habitaciones * 40 de separación
+        alto: 6,
+        profundo: 20
+    };
+
+    // ========================
+    // DATOS DE OBRAS DE ARTE CON TEXTURAS
+    // ========================
+
+    const obrasDeArte = [
+        // Pared norte
+        {
+            titulo: "La Mona Lisa",
+            artista: "Leonardo da Vinci",
+            año: "1503-1519",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/800px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+            tamaño: { ancho: 2.0, alto: 1.5 },
+            posicion: new THREE.Vector3(10, 2, -9.9),
+            descripcion: "El retrato más famoso del mundo"
+        },
+        {
+            titulo: "La Noche Estrellada",
+            artista: "Vincent van Gogh",
+            año: "1889",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+            tamaño: { ancho: 2.2, alto: 1.7 },
+            posicion: new THREE.Vector3(-5, 2, -9.9),
+            descripcion: "Obra maestra del post-impresionismo"
+        },
+        {
+            titulo: "Los Girasoles",
+            artista: "Vincent van Gogh",
+            año: "1888",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Vincent_Willem_van_Gogh_127.jpg/800px-Vincent_Willem_van_Gogh_127.jpg",
+            tamaño: { ancho: 1.8, alto: 2.2 },
+            posicion: new THREE.Vector3(0, 2, -9.9),
+            descripcion: "Serie icónica de naturalezas muertas",
+            esGanador: true
+        },
+        {
+            titulo: "El Nacimiento de Venus",
+            artista: "Sandro Botticelli",
+            año: "1484-1486",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg/1280px-Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited.jpg",
+            tamaño: { ancho: 2.6, alto: 1.8 },
+            posicion: new THREE.Vector3(5, 2, -9.9),
+            descripcion: "Obra maestra del Renacimiento italiano"
+        },
+
+
+        // Pared sur
+        {
+            titulo: "Autorretrato de Van Gogh",
+            artista: "Vincent van Gogh",
+            año: "1889",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg/800px-Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg",
+            tamaño: { ancho: 1.8, alto: 2.2 },
+            posicion: new THREE.Vector3(-10, 2, 9.9),
+            descripcion: "Autorretrato con sombrero"
+        },
+        {
+            titulo: "Retrato del Dr. Gachet",
+            artista: "Vincent van Gogh",
+            año: "1890",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/PORTRAIT_OF_DR._GACHET.jpg/800px-PORTRAIT_OF_DR._GACHET.jpg",
+            tamaño: { ancho: 2.0, alto: 2.4 },
+            posicion: new THREE.Vector3(-5, 2, 9.9),
+            descripcion: "Uno de los últimos retratos de Van Gogh"
+        },
+        {
+            titulo: "Las Meninas",
+            artista: "Diego Velázquez",
+            año: "1656",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Las_Meninas_01.jpg/800px-Las_Meninas_01.jpg",
+            tamaño: { ancho: 2.0, alto: 2.3 },
+            posicion: new THREE.Vector3(0, 2, 9.9),
+            descripcion: "Obra maestra del Siglo de Oro español"
+        },
+        {
+            titulo: "Girl with a Pearl Earring",
+            artista: "Johannes Vermeer",
+            año: "1665",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/1665_Girl_with_a_Pearl_Earring.jpg/800px-1665_Girl_with_a_Pearl_Earring.jpg",
+            tamaño: { ancho: 1.6, alto: 1.8 },
+            posicion: new THREE.Vector3(5, 2, 9.9),
+            descripcion: "La Mona Lisa del Norte"
+        },
+        {
+            titulo: "La Capilla Sixtina",
+            artista: "Miguel Ángel",
+            año: "1512",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Michelangelo_-_Creation_of_Adam_%28cropped%29.jpg/800px-Michelangelo_-_Creation_of_Adam_%28cropped%29.jpg",
+            tamaño: { ancho: 1.6, alto: 2.0 },
+            posicion: new THREE.Vector3(10, 2, 9.9),
+            descripcion: "Obra maestra del Renacimiento"
+        },
+
+        // Pared este
+        {
+            titulo: "Lirios",
+            artista: "Vincent van Gogh",
+            año: "1889",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Vincent_van_Gogh_-_Irises_-_Google_Art_Project.jpg/800px-Vincent_van_Gogh_-_Irises_-_Google_Art_Project.jpg",
+            tamaño: { ancho: 2.0, alto: 1.6 },
+            posicion: new THREE.Vector3(14.9, 2, -7),
+            descripcion: "Otra obra maestra de Van Gogh"
+        },
+        {
+            titulo: "Van Gogh Autorretrato con Vendaje",
+            artista: "Vincent van Gogh",
+            año: "1889",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Vincent_van_Gogh_-_Self-Portrait_with_Bandaged_Ear_-_Google_Art_Project.jpg/800px-Vincent_van_Gogh_-_Self-Portrait_with_Bandaged_Ear_-_Google_Art_Project.jpg",
+            tamaño: { ancho: 1.4, alto: 2.2 },
+            posicion: new THREE.Vector3(14.9, 2, 0),
+            descripcion: "Autorretrato después del incidente de la oreja"
+        },
+        {
+            titulo: "Van Gogh Obra Maestra",
+            artista: "Vincent van Gogh",
+            año: "1888",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Vincent_van_Gogh_-_Wheatfield_with_crows_-_Google_Art_Project.jpg/800px-Vincent_van_Gogh_-_Wheatfield_with_crows_-_Google_Art_Project.jpg",
+            tamaño: { ancho: 2.2, alto: 1.8 },
+            posicion: new THREE.Vector3(14.9, 2, 7),
+            descripcion: "Una de las grandes obras de Van Gogh"
+        },
+
+        // Pared oeste
+        {
+            titulo: "La Noche Estrellada Alternativa",
+            artista: "Vincent van Gogh",
+            año: "1889",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Starry_Night_Over_the_Rhone.jpg/800px-Starry_Night_Over_the_Rhone.jpg",
+            tamaño: { ancho: 1.4, alto: 1.8 },
+            posicion: new THREE.Vector3(-14.9, 2, -7),
+            descripcion: "Otra versión de la noche estrellada"
+        },
+        {
+            titulo: "Mona Lisa Nueva",
+            artista: "Leonardo da Vinci",
+            año: "1503",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/800px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+            tamaño: { ancho: 1.8, alto: 1.2 },
+            posicion: new THREE.Vector3(-14.9, 2, 0),
+            descripcion: "Una nueva interpretación de la Mona Lisa"
+        },
+        {
+            titulo: "Van Gogh Biografía",
+            artista: "Vincent van Gogh",
+            año: "1889",
+            textura: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Vincent_van_Gogh_-_Self-Portrait_with_Straw_Hat_-_Google_Art_Project.jpg/800px-Vincent_van_Gogh_-_Self-Portrait_with_Straw_Hat_-_Google_Art_Project.jpg",
+            tamaño: { ancho: 2.4, alto: 1.6 },
+            posicion: new THREE.Vector3(-14.9, 2, 7),
+            descripcion: "Obra representativa de Van Gogh"
+        }
+    ];
+
+    // ========================
+    // INICIALIZACIÓN
+    // ========================
+
+    function inicializar() {
+        console.log('Iniciando museo con 6 habitaciones...');
+        try {
+            crearEscena();
+            crearCamara();
+            crearRenderizador();
+            crearSalaUnica();
+            crearIluminacion();
+
+            // Inicializar cargador de texturas
+            cargadorTexturas = new THREE.TextureLoader();
+
+
+            crearObrasConTexturas();
+            cargarModelo3D();
+
+            configurarControles();
+            configurarEventos();
+
+            reloj = new THREE.Clock();
+            console.log('Museo con 6 habitaciones inicializado');
+            animar();
+        } catch (error) {
+            console.error('Error inicializando museo:', error);
+        }
+    }
+
+    // ========================
+    // CREACIÓN DE LA ESCENA
+    // ========================
+
+    function crearEscena() {
+        escena = new THREE.Scene();
+        escena.background = new THREE.Color(0x2a2a2a);
+        escena.fog = new THREE.Fog(0x2a2a2a, 1, 40);
+    }
+
+    function crearCamara() {
+        camara = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        camara.position.set(0, 1.6, 0);
+        camara.rotation.order = 'YXZ'; // Importante para evitar gimbal lock
+    }
+
+    function crearRenderizador() {
+        console.log('Creando renderizador optimizado...');
+        renderizador = new THREE.WebGLRenderer({
+            canvas: document.querySelector("#miCanvas"),
+            antialias: true
+        });
+
+        renderizador.setSize(window.innerWidth, window.innerHeight);
+        renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderizador.shadowMap.enabled = false;
+        renderizador.outputEncoding = THREE.sRGBEncoding;
+    }
+
+    // ========================
+    // CREACIÓN DE LAS 6 HABITACIONES + PASILLO
+    // ========================
+
+    function crearSalaUnica() {
+        console.log('Construyendo 6 habitaciones idénticas...');
+
+        // Texturas
+        const texturaSuelo = new THREE.TextureLoader().load("assets/texturas/checkered_pavement_tiles_diff_1k.jpg");
+        texturaSuelo.wrapS = THREE.RepeatWrapping;
+        texturaSuelo.wrapT = THREE.RepeatWrapping;
+        texturaSuelo.repeat.set(4, 4);
+
+        const texturaPared = new THREE.TextureLoader().load("assets/texturas/red_brick_diff_1k.jpg");
+        texturaPared.wrapS = THREE.RepeatWrapping;
+        texturaPared.wrapT = THREE.RepeatWrapping;
+        texturaPared.repeat.set(2, 2);
+
+        // Materiales
+        const materialPared = new THREE.MeshLambertMaterial({ map: texturaPared });
+        const materialSuelo = new THREE.MeshLambertMaterial({ map: texturaSuelo });
+        const materialTecho = new THREE.MeshLambertMaterial({ color: 0xfafafa });
+
+        const { ancho, alto, profundo } = DIMENSIONES_SALA;
+
+        // Posiciones de las 6 habitaciones
+        const posicionesHabitaciones = [
+            { x: 0, z: 0 },      // Habitación 1
+            { x: 40, z: 0 },     // Habitación 2
+            { x: 80, z: 0 },     // Habitación 3
+            { x: 120, z: 0 },    // Habitación 4
+            { x: 160, z: 0 },    // Habitación 5
+            { x: 200, z: 0 }     // Habitación 6
+        ];
+
+        // Crear cada habitación
+        posicionesHabitaciones.forEach((pos, indice) => {
+            crearHabitacion(pos.x, pos.z, materialPared, materialSuelo, materialTecho, ancho, alto, profundo);
+
+            // Crear columnas decorativas para cada habitación
+            crearColumnasDecorativas(pos.x, pos.z);
+        });
+
+        // Crear pasillo conectando las habitaciones
+        crearPasillo(materialSuelo, materialTecho, materialPared);
+
+        // Crear pasillos reales entre habitaciones
+        crearPasillosReales(materialSuelo, materialTecho, materialPared);
+    }
+
+    function crearHabitacion(offsetX, offsetZ, materialPared, materialSuelo, materialTecho, ancho, alto, profundo) {
+        // Suelo
+        const suelo = new THREE.Mesh(
+            new THREE.PlaneGeometry(ancho, profundo),
+            materialSuelo
+        );
+        suelo.rotation.x = -Math.PI / 2;
+        suelo.position.set(offsetX, 0.01, offsetZ);
+        escena.add(suelo);
+
+        // Techo
+        const techo = new THREE.Mesh(
+            new THREE.PlaneGeometry(ancho, profundo),
+            materialTecho
+        );
+        techo.rotation.x = Math.PI / 2;
+        techo.position.set(offsetX, alto - 0.01, offsetZ);
+        escena.add(techo);
+
+        // Pared norte
+        const paredNorte = new THREE.Mesh(
+            new THREE.PlaneGeometry(ancho, alto),
+            materialPared
+        );
+        paredNorte.position.set(offsetX, alto / 2, offsetZ - profundo / 2 + 0.01);
+        escena.add(paredNorte);
+        objetosColision.push({tipo: 'pared', z: offsetZ - profundo / 2});
+
+        // Pared sur (dividida en dos partes para crear abertura al pasillo)
+        const anchoPuerta = 8; // Ancho de la abertura hacia el pasillo
+        const anchoSegmento = (ancho - anchoPuerta) / 2;
+
+        // Segmento izquierdo de pared sur
+        const paredSurIzq = new THREE.Mesh(
+            new THREE.PlaneGeometry(anchoSegmento, alto),
+            materialPared
+        );
+        paredSurIzq.position.set(offsetX - anchoSegmento/2 - anchoPuerta/2, alto / 2, offsetZ + profundo / 2 - 0.01);
+        paredSurIzq.rotation.y = Math.PI;
+        escena.add(paredSurIzq);
+
+        // Segmento derecho de pared sur
+        const paredSurDer = new THREE.Mesh(
+            new THREE.PlaneGeometry(anchoSegmento, alto),
+            materialPared
+        );
+        paredSurDer.position.set(offsetX + anchoSegmento/2 + anchoPuerta/2, alto / 2, offsetZ + profundo / 2 - 0.01);
+        paredSurDer.rotation.y = Math.PI;
+        escena.add(paredSurDer);
+
+        // Mantener colisión solo en los extremos (no en la abertura)
+        objetosColision.push({tipo: 'pared', z: offsetZ + profundo / 2, xMin: offsetX - ancho/2, xMax: offsetX - anchoPuerta/2});
+        objetosColision.push({tipo: 'pared', z: offsetZ + profundo / 2, xMin: offsetX + anchoPuerta/2, xMax: offsetX + ancho/2});
+
+        // Paredes laterales para conectar habitación con pasillo
+        // Solo crear si NO es la última habitación (no hay habitación siguiente)
+        if (offsetX < 200) { // No crear para la última habitación
+            const largoConexion = 10; // Espacio entre habitaciones (40 - 30 = 10)
+            const profundoParedLateral = 6; // Área que debe cubrir cada pared lateral
+
+            // Pared lateral NORTE de la zona de conexión
+            const paredLateralNorte = new THREE.Mesh(
+                new THREE.PlaneGeometry(largoConexion, alto),
+                materialPared
+            );
+            // Posición: centrada en el espacio entre habitaciones, zona norte
+            // X: centro del espacio entre habitaciones = offsetX + 15 + 5 = offsetX + 20
+            // Z: centro del área norte = -7 (desde -10 hasta -4)
+            paredLateralNorte.position.set(offsetX + ancho/2 + largoConexion/2, alto / 2, -7);
+            paredLateralNorte.rotation.y = -Math.PI / 2;
+            escena.add(paredLateralNorte);
+
+            // Pared lateral SUR de la zona de conexión
+            const paredLateralSur = new THREE.Mesh(
+                new THREE.PlaneGeometry(largoConexion, alto),
+                materialPared
+            );
+            // Posición: centrada en el espacio entre habitaciones, zona sur
+            // X: centro del espacio entre habitaciones = offsetX + 15 + 5 = offsetX + 20
+            // Z: centro del área sur = +7 (desde +4 hasta +10)
+            paredLateralSur.position.set(offsetX + ancho/2 + largoConexion/2, alto / 2, +7);
+            paredLateralSur.rotation.y = -Math.PI / 2;
+            escena.add(paredLateralSur);
+        }
+
+        // Pared este (solo si es la última habitación)
+        if (offsetX === 200) { // Última habitación
+            const paredEste = new THREE.Mesh(
+                new THREE.PlaneGeometry(profundo, alto),
+                materialPared
+            );
+            paredEste.position.set(offsetX + ancho / 2 - 0.01, alto / 2, offsetZ);
+            paredEste.rotation.y = -Math.PI / 2;
+            escena.add(paredEste);
+            objetosColision.push({tipo: 'pared', x: offsetX + ancho / 2});
+        }
+
+        // Pared oeste (solo si es la primera habitación)
+        if (offsetX === 0) { // Primera habitación
+            const paredOeste = new THREE.Mesh(
+                new THREE.PlaneGeometry(profundo, alto),
+                materialPared
+            );
+            paredOeste.position.set(offsetX - ancho / 2 + 0.01, alto / 2, offsetZ);
+            paredOeste.rotation.y = Math.PI / 2;
+            escena.add(paredOeste);
+            objetosColision.push({tipo: 'pared', x: offsetX - ancho / 2});
+        }
+    }
+
+    function crearPasillo(materialSuelo, materialTecho, materialPared) {
+        // Crear piso del pasillo conectando las habitaciones
+        const anchoPasillo = 200; // De la habitación 1 a la 6
+        const profundoPasillo = 10; // Ancho del pasillo
+
+        const pisoPasillo = new THREE.Mesh(
+            new THREE.PlaneGeometry(anchoPasillo, profundoPasillo),
+            materialSuelo
+        );
+        pisoPasillo.rotation.x = -Math.PI / 2;
+        pisoPasillo.position.set(100, 0.01, 15); // Centrado en X, al sur de las habitaciones
+        escena.add(pisoPasillo);
+
+        // Techo del pasillo
+        const techoPasillo = new THREE.Mesh(
+            new THREE.PlaneGeometry(anchoPasillo, profundoPasillo),
+            materialTecho
+        );
+        techoPasillo.rotation.x = Math.PI / 2;
+        techoPasillo.position.set(100, DIMENSIONES_SALA.alto - 0.01, 15);
+        escena.add(techoPasillo);
+
+        // Pared norte del pasillo (reutilizando material existente)
+        const paredNortePasillo = new THREE.Mesh(
+            new THREE.PlaneGeometry(anchoPasillo, DIMENSIONES_SALA.alto),
+            materialPared
+        );
+        paredNortePasillo.position.set(100, DIMENSIONES_SALA.alto / 2, 10);
+        escena.add(paredNortePasillo);
+
+        // Pared sur del pasillo (reutilizando material existente)
+        const paredSurPasillo = new THREE.Mesh(
+            new THREE.PlaneGeometry(anchoPasillo, DIMENSIONES_SALA.alto),
+            materialPared
+        );
+        paredSurPasillo.position.set(100, DIMENSIONES_SALA.alto / 2, 20);
+        paredSurPasillo.rotation.y = Math.PI;
+        escena.add(paredSurPasillo);
+    }
+
+    function crearPasillosReales(materialSuelo, materialTecho, materialPared) {
+        console.log('Creando 5 pasillos reales entre habitaciones...');
+
+        // Dimensiones de cada pasillo individual
+        const DIMENSIONES_PASILLO = {
+            largo: 10,     // Espacio real entre habitaciones (40-30=10)
+            ancho: 8,      // Ancho del pasillo
+            alto: 6        // Altura del pasillo
+        };
+
+        // Posiciones donde crear los 5 pasillos (en el espacio libre entre habitaciones)
+        const posicionesPasillos = [
+            { x: 20, z: 0 },   // Pasillo entre habitación 1 (0±15) y 2 (40±15)
+            { x: 60, z: 0 },   // Pasillo entre habitación 2 (40±15) y 3 (80±15)
+            { x: 100, z: 0 },  // Pasillo entre habitación 3 (80±15) y 4 (120±15)
+            { x: 140, z: 0 },  // Pasillo entre habitación 4 (120±15) y 5 (160±15)
+            { x: 180, z: 0 }   // Pasillo entre habitación 5 (160±15) y 6 (200±15)
+        ];
+
+        posicionesPasillos.forEach((pos, indice) => {
+            console.log(`Creando pasillo ${indice + 1} en posición X: ${pos.x}`);
+
+            // PISO del pasillo
+            const pisoPasillo = new THREE.Mesh(
+                new THREE.PlaneGeometry(DIMENSIONES_PASILLO.largo, DIMENSIONES_PASILLO.ancho),
+                materialSuelo
+            );
+            pisoPasillo.rotation.x = -Math.PI / 2;
+            pisoPasillo.position.set(pos.x, 0.01, pos.z);
+            escena.add(pisoPasillo);
+
+            // TECHO del pasillo
+            const techoPasillo = new THREE.Mesh(
+                new THREE.PlaneGeometry(DIMENSIONES_PASILLO.largo, DIMENSIONES_PASILLO.ancho),
+                materialTecho
+            );
+            techoPasillo.rotation.x = Math.PI / 2;
+            techoPasillo.position.set(pos.x, DIMENSIONES_PASILLO.alto - 0.01, pos.z);
+            escena.add(techoPasillo);
+
+            // PARED LATERAL NORTE del pasillo
+            const paredNortePasillo = new THREE.Mesh(
+                new THREE.PlaneGeometry(DIMENSIONES_PASILLO.largo, DIMENSIONES_PASILLO.alto),
+                materialPared
+            );
+            paredNortePasillo.position.set(pos.x, DIMENSIONES_PASILLO.alto / 2, pos.z - DIMENSIONES_PASILLO.ancho / 2 + 0.01);
+            escena.add(paredNortePasillo);
+
+            // PARED LATERAL SUR del pasillo
+            const paredSurPasillo = new THREE.Mesh(
+                new THREE.PlaneGeometry(DIMENSIONES_PASILLO.largo, DIMENSIONES_PASILLO.alto),
+                materialPared
+            );
+            paredSurPasillo.position.set(pos.x, DIMENSIONES_PASILLO.alto / 2, pos.z + DIMENSIONES_PASILLO.ancho / 2 - 0.01);
+            paredSurPasillo.rotation.y = Math.PI;
+            escena.add(paredSurPasillo);
+
+            // NO AGREGAR PAREDES AQUÍ - LAS PAREDES LATERALES SE CREAN EN OTRO LUGAR
+
+            console.log(`Pasillo ${indice + 1} creado exitosamente`);
+        });
+
+        console.log('Los 5 pasillos reales han sido creados correctamente con paredes laterales corregidas');
+    }
+
+    function crearColumnasDecorativas(offsetX, offsetZ) {
+        const materialColumna = new THREE.MeshLambertMaterial({ color: 0xd4af37 });
+        const geometriaColumna = new THREE.CylinderGeometry(0.5, 0.5, DIMENSIONES_SALA.alto, 16);
+
+        // Crear columnas en las esquinas de cada habitación
+        const posicionesColumnas = [
+            { x: offsetX - DIMENSIONES_SALA.ancho/2 + 1, z: offsetZ - DIMENSIONES_SALA.profundo/2 + 1 },
+            { x: offsetX + DIMENSIONES_SALA.ancho/2 - 1, z: offsetZ - DIMENSIONES_SALA.profundo/2 + 1 },
+            { x: offsetX - DIMENSIONES_SALA.ancho/2 + 1, z: offsetZ + DIMENSIONES_SALA.profundo/2 - 1 },
+            { x: offsetX + DIMENSIONES_SALA.ancho/2 - 1, z: offsetZ + DIMENSIONES_SALA.profundo/2 - 1 }
+        ];
+
+        posicionesColumnas.forEach(pos => {
+            const columna = new THREE.Mesh(geometriaColumna, materialColumna);
+            columna.position.set(pos.x, DIMENSIONES_SALA.alto/2, pos.z);
+            escena.add(columna);
+        });
+    }
+
+    // ========================
+    // ILUMINACIÓN
+    // ========================
+
+    function crearIluminacion() {
+        // Luz ambiental
+        const luzAmbiental = new THREE.AmbientLight(0x404040, 0.5);
+        escena.add(luzAmbiental);
+
+        // Luces direccionales principales para cada habitación
+        const posicionesHabitaciones = [0, 40, 80, 120, 160, 200];
+
+        posicionesHabitaciones.forEach(x => {
+            const luzPrincipal1 = new THREE.DirectionalLight(0xffffff, 0.8);
+            luzPrincipal1.position.set(x + 10, DIMENSIONES_SALA.alto, 10);
+            escena.add(luzPrincipal1);
+
+            const luzPrincipal2 = new THREE.DirectionalLight(0xffffff, 0.8);
+            luzPrincipal2.position.set(x - 10, DIMENSIONES_SALA.alto, -10);
+            escena.add(luzPrincipal2);
+
+            // Luces focales para las obras
+            const luzFocal = new THREE.SpotLight(0xffffff, 1, 20, Math.PI/6, 0.5);
+            luzFocal.position.set(x, DIMENSIONES_SALA.alto - 1, 0);
+            luzFocal.target.position.set(x, 0, 0);
+            escena.add(luzFocal);
+            escena.add(luzFocal.target);
+        });
+    }
+
+
+    // MODELO 3D
+   function cargarModelo3D() {
+    console.log('Cargando modelos 3D...');
+
+    const loader = new THREE.GLTFLoader();
+    const rutaModelo = 'assets/models/scene.gltf';
+
+    // Crear una escultura en cada habitación
+    const posicionesHabitaciones = [0, 40, 80, 120, 160, 200];
+
+    posicionesHabitaciones.forEach((offsetX, indice) => {
+        loader.load(
+            rutaModelo,
+            function(gltf) {
+                console.log(`Modelo 3D ${indice + 1} cargado correctamente`);
+
+                // Obtener el modelo
+                const modelo = gltf.scene.clone();
+
+                // Ajustar posición, escala y rotación para cada habitación
+                modelo.position.set(offsetX - 13, 1, 0);
+                modelo.scale.set(2.0, 2.0, 2.0);
+                modelo.rotation.y = Math.PI;
+
+                // Agregar a la escena
+                escena.add(modelo);
+
+                // Crear base para la escultura
+                const geometriaBase = new THREE.BoxGeometry(3, 2.5, 2);
+                const materialBase = new THREE.MeshLambertMaterial({ color: 0x888888 });
+                const base = new THREE.Mesh(geometriaBase, materialBase);
+                base.position.set(offsetX - 13, 0, 0);
+                escena.add(base);
+
+                console.log(`Escultura ${indice + 1} agregada correctamente`);
+            },
+            function(xhr) {
+                // Progreso de carga
+                console.log(`Modelo ${indice + 1}: ${(xhr.loaded / xhr.total * 100)}% cargado`);
+            },
+            function(error) {
+                console.error(`Error al cargar el modelo ${indice + 1}:`, error);
+            }
+        );
+    });
+}
+
+    // ========================
+    // CREACIÓN DE OBRAS CON TEXTURAS
+    // ========================
+
+    function crearObrasConTexturas() {
+        console.log('Cargando obras de arte en 6 habitaciones...');
+
+        // Posiciones base de las 6 habitaciones
+        const posicionesHabitaciones = [0, 40, 80, 120, 160, 200];
+
+        posicionesHabitaciones.forEach((offsetX, indiceHabitacion) => {
+            // PARED NORTE para cada habitación
+            const textura = new THREE.TextureLoader().load("assets/texturas/capilla_sixtina.webp");
+            const material = new THREE.MeshBasicMaterial({ map: textura });
+            const geometria = new THREE.PlaneGeometry(4.0, 3.0);
+            const pintura = new THREE.Mesh(geometria, material);
+            pintura.position.set(offsetX + 8, 2.5, -9.9);
+            escena.add(pintura);
+
+            const textura1 = new THREE.TextureLoader().load("assets/texturas/cuadro_extra6.webp");
+            const material1 = new THREE.MeshBasicMaterial({ map: textura1 });
+            const geometria1 = new THREE.PlaneGeometry(4.0, 3.0);
+            const pintura1 = new THREE.Mesh(geometria1, material1);
+            pintura1.position.set(offsetX + 0, 2.5, -9.9);
+            escena.add(pintura1);
+
+            const textura2 = new THREE.TextureLoader().load("assets/texturas/las_meninas.webp");
+            const material2 = new THREE.MeshBasicMaterial({ map: textura2 });
+            const geometria2 = new THREE.PlaneGeometry(4.0, 3.0);
+            const pintura2 = new THREE.Mesh(geometria2, material2);
+            pintura2.position.set(offsetX - 8, 2.5, -9.9);
+            escena.add(pintura2);
+
+            // PARED SUR para cada habitación
+            const textura3 = new THREE.TextureLoader().load("assets/texturas/noche_estrellada.webp");
+            const material3 = new THREE.MeshBasicMaterial({ map: textura3 });
+            const geometria3 = new THREE.PlaneGeometry(4.0, 3.0);
+            const pintura3 = new THREE.Mesh(geometria3, material3);
+            pintura3.position.set(offsetX - 8, 2.5, 9.9);
+            pintura3.rotation.y = Math.PI;
+            escena.add(pintura3);
+
+            const textura4 = new THREE.TextureLoader().load("assets/texturas/cuadro_extra4.webp");
+            const material4 = new THREE.MeshBasicMaterial({ map: textura4 });
+            const geometria4 = new THREE.PlaneGeometry(4.0, 3.0);
+            const pintura4 = new THREE.Mesh(geometria4, material4);
+            pintura4.position.set(offsetX + 0, 2.5, 9.9);
+            pintura4.rotation.y = Math.PI;
+            escena.add(pintura4);
+
+            const textura5 = new THREE.TextureLoader().load("assets/texturas/girl_pearl_earring.webp");
+            const material5 = new THREE.MeshBasicMaterial({ map: textura5 });
+            const geometria5 = new THREE.PlaneGeometry(4.0, 3.0);
+            const pintura5 = new THREE.Mesh(geometria5, material5);
+            pintura5.position.set(offsetX + 8, 2.5, 9.9);
+            pintura5.rotation.y = Math.PI;
+            escena.add(pintura5);
+        });
+    }
+
+    function crearObraConTextura(datos, indice, pared = "frontal") {
+    cargadorTexturas.load(
+        datos.textura,
+        function(textura) {
+            console.log(`Textura cargada: ${datos.titulo}`);
+
+            const grupoObra = new THREE.Group();
+
+            // Calcular posición inicial y rotación según pared
+            const posicionBase = datos.posicion.clone(); // x y altura
+            let rotacionY = 0;
+
+            switch(pared.toLowerCase()) {
+                case "frontal":
+                    posicionBase.z = -9.9; // ajustar al frente
+                    rotacionY = Math.PI;
+                    break;
+                case "trasera":
+                    posicionBase.z = 9.9;
+                    rotacionY = 0;
+                    break;
+                case "izquierda":
+                    posicionBase.x = -9.9;
+                    rotacionY = Math.PI / 2;
+                    break;
+                case "derecha":
+                    posicionBase.x = 9.9;
+                    rotacionY = -Math.PI / 2;
+                    break;
+                default:
+                    console.warn("Pared desconocida, se colocará en frontal");
+                    posicionBase.z = -9.9;
+                    rotacionY = Math.PI;
+            }
+
+            // Marco
+            const esVanGogh = datos.artista === "Vincent van Gogh";
+            const colorMarco = (datos.esGanador || esVanGogh) ? 0xffd700 : 0x8b4513;
+            const marco = new THREE.Mesh(
+                new THREE.BoxGeometry(datos.tamaño.ancho + 0.2, datos.tamaño.alto + 0.2, 0.1),
+                new THREE.MeshLambertMaterial({ color: colorMarco })
+            );
+            marco.position.copy(posicionBase);
+            marco.rotation.y = rotacionY;
+            grupoObra.add(marco);
+
+            // Marco interno dorado
+            if (esVanGogh || datos.esGanador) {
+                const marcoInterno = new THREE.Mesh(
+                    new THREE.BoxGeometry(datos.tamaño.ancho + 0.15, datos.tamaño.alto + 0.15, 0.12),
+                    new THREE.MeshLambertMaterial({ color: 0xffdf00, emissive: 0x443300 })
+                );
+                marcoInterno.position.copy(posicionBase);
+                marcoInterno.position.z += 0.01;
+                marcoInterno.rotation.y = rotacionY;
+                grupoObra.add(marcoInterno);
+            }
+
+            // Pintura
+            const pintura = new THREE.Mesh(
+                new THREE.PlaneGeometry(datos.tamaño.ancho, datos.tamaño.alto),
+                new THREE.MeshLambertMaterial({ map: textura, transparent: false })
+            );
+            pintura.position.copy(posicionBase);
+            pintura.position.z += 0.06; // separa un poco del marco
+            pintura.rotation.y = rotacionY;
+            grupoObra.add(pintura);
+
+            // Placa informativa
+            const placa = new THREE.Mesh(
+                new THREE.PlaneGeometry(datos.tamaño.ancho * 0.8, 0.3),
+                new THREE.MeshLambertMaterial({ color: 0x2d2d2d })
+            );
+            placa.position.copy(posicionBase);
+            placa.position.y -= (datos.tamaño.alto / 2) + 0.4;
+            placa.position.z += 0.02;
+            placa.rotation.y = rotacionY;
+            grupoObra.add(placa);
+
+            // Guardar referencia
+            if (datos.esGanador) cuadroGanador = grupoObra;
+
+            meshCuadros.push({ grupo: grupoObra, datos: datos, posicion: posicionBase.clone() });
+            escena.add(grupoObra);
+        },
+        function(progreso) {
+            console.log(`Cargando ${datos.titulo}: ${(progreso.loaded / progreso.total * 100).toFixed(1)}%`);
+        },
+        function(error) {
+            console.warn(`Error cargando ${datos.titulo}, usando color sólido:`, error);
+            crearObraConColor({ ...datos, color: 0x8b7355 }, indice);
+        }
+    );
+}
+
+
+ /*    function crearObraConTextura(datos, indice) {
+        // Cargar textura
+        cargadorTexturas.load(
+            datos.textura,
+            function(textura) {
+                // Textura cargada exitosamente
+                console.log(`Textura cargada: ${datos.titulo}`);
+
+                // Crear el grupo de la obra
+                const grupoObra = new THREE.Group();
+
+                // Marco con brillo especial si es ganador o es Van Gogh
+                const esVanGogh = datos.artista === "Vincent van Gogh";
+                const colorMarco = (datos.esGanador || esVanGogh) ? 0xffd700 : 0x8b4513;
+                const marco = new THREE.Mesh(
+                    new THREE.BoxGeometry(datos.tamaño.ancho + 0.2, datos.tamaño.alto + 0.2, 0.1),
+                    new THREE.MeshLambertMaterial({ color: colorMarco })
+                );
+                marco.position.copy(datos.posicion);
+                grupoObra.add(marco);
+
+                // Marco interno dorado más brillante para Van Gogh o ganador
+                if (esVanGogh || datos.esGanador) {
+                    const marcoInterno = new THREE.Mesh(
+                        new THREE.BoxGeometry(datos.tamaño.ancho + 0.15, datos.tamaño.alto + 0.15, 0.12),
+                        new THREE.MeshLambertMaterial({
+                            color: 0xffdf00,
+                            emissive: 0x443300
+                        })
+                    );
+                    marcoInterno.position.copy(datos.posicion);
+                    marcoInterno.position.z += 0.01;
+                    grupoObra.add(marcoInterno);
+                }
+
+                // Pintura con textura real
+                const pintura = new THREE.Mesh(
+                    new THREE.PlaneGeometry(datos.tamaño.ancho, datos.tamaño.alto),
+                    new THREE.MeshLambertMaterial({
+                        map: textura,
+                        transparent: false
+                    })
+                );
+                pintura.position.copy(datos.posicion);
+                pintura.position.z += 0.06;
+                grupoObra.add(pintura);
+
+                // Guardar referencia si es cuadro ganador
+                if (datos.esGanador) {
+                    cuadroGanador = grupoObra;
+                }
+
+                // Placa informativa
+                const placa = new THREE.Mesh(
+                    new THREE.PlaneGeometry(datos.tamaño.ancho * 0.8, 0.3),
+                    new THREE.MeshLambertMaterial({ color: 0x2d2d2d })
+                );
+                placa.position.copy(datos.posicion);
+                placa.position.y -= (datos.tamaño.alto / 2) + 0.4;
+                placa.position.z += 0.02;
+                grupoObra.add(placa);
+
+                // Agregar a lista de meshes para colisión
+                meshCuadros.push({
+                    grupo: grupoObra,
+                    datos: datos,
+                    posicion: datos.posicion.clone()
+                });
+
+                escena.add(grupoObra);
+            },
+            function(progreso) {
+                // Progreso de carga
+                console.log(`Cargando ${datos.titulo}: ${(progreso.loaded / progreso.total * 100)}%`);
+            },
+            function(error) {
+                // Error cargando textura - usar color de respaldo
+                console.warn(`Error cargando ${datos.titulo}, usando color sólido:`, error);
+                crearObraConColor({...datos, color: 0x8b7355}, indice);
+            }
+        );
+    }
+ */
+    function crearObraConColor(datos, indice) {
+        const grupoObra = new THREE.Group();
+
+        // Marco con brillo especial si es ganador o es Van Gogh
+        const esVanGogh = datos.artista === "Vincent van Gogh";
+        const colorMarco = (datos.esGanador || esVanGogh) ? 0xffd700 : 0x8b4513;
+        const marco = new THREE.Mesh(
+            new THREE.BoxGeometry(datos.tamaño.ancho + 0.2, datos.tamaño.alto + 0.2, 0.1),
+            new THREE.MeshLambertMaterial({ color: colorMarco })
+        );
+        marco.position.copy(datos.posicion);
+        grupoObra.add(marco);
+
+        // Marco interno dorado más brillante para Van Gogh
+        if (esVanGogh || datos.esGanador) {
+            const marcoInterno = new THREE.Mesh(
+                new THREE.BoxGeometry(datos.tamaño.ancho + 0.15, datos.tamaño.alto + 0.15, 0.12),
+                new THREE.MeshLambertMaterial({
+                    color: 0xffdf00,
+                    emissive: 0x443300
+                })
+            );
+            marcoInterno.position.copy(datos.posicion);
+            marcoInterno.position.z += 0.01;
+            grupoObra.add(marcoInterno);
+        }
+
+        // Pintura con color sólido
+        const pintura = new THREE.Mesh(
+            new THREE.PlaneGeometry(datos.tamaño.ancho, datos.tamaño.alto),
+            new THREE.MeshLambertMaterial({ color: datos.color })
+        );
+        pintura.position.copy(datos.posicion);
+        pintura.position.z += 0.06;
+        grupoObra.add(pintura);
+
+        // Guardar referencia si es cuadro ganador
+        if (datos.esGanador) {
+            cuadroGanador = grupoObra;
+        }
+
+        // Placa
+        const placa = new THREE.Mesh(
+            new THREE.PlaneGeometry(datos.tamaño.ancho * 0.8, 0.3),
+            new THREE.MeshLambertMaterial({ color: 0x2d2d2d })
+        );
+        placa.position.copy(datos.posicion);
+        placa.position.y -= (datos.tamaño.alto / 2) + 0.4;
+        placa.position.z += 0.02;
+        grupoObra.add(placa);
+
+        // Agregar a lista de meshes para colisión
+        meshCuadros.push({
+            grupo: grupoObra,
+            datos: datos,
+            posicion: datos.posicion.clone()
+        });
+
+        escena.add(grupoObra);
+    }
+
+    // ========================
+    // CONTROLES
+    // ========================
+
+    function configurarControles() {
+        const bloqueador = document.getElementById('bloqueador');
+        const botonIniciar = document.getElementById('botonIniciar');
+
+        botonIniciar.addEventListener('click', function() {
+            console.log('Iniciando recorrido...');
+            const elemento = document.body;
+
+            elemento.requestPointerLock = elemento.requestPointerLock ||
+                                        elemento.mozRequestPointerLock ||
+                                        elemento.webkitRequestPointerLock;
+
+            if (elemento.requestPointerLock) {
+                elemento.requestPointerLock();
+            } else {
+                bloqueador.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('pointerlockchange', cambiarPointerLock);
+        document.addEventListener('mozpointerlockchange', cambiarPointerLock);
+        document.addEventListener('webkitpointerlockchange', cambiarPointerLock);
+
+        function cambiarPointerLock() {
+            const elemento = document.pointerLockElement ||
+                            document.mozPointerLockElement ||
+                            document.webkitPointerLockElement;
+
+            if (elemento === document.body) {
+                bloqueador.style.display = 'none';
+            } else {
+                bloqueador.style.display = 'flex';
+            }
+        }
+    }
+
+    function configurarEventos() {
+        // Teclado
+        document.addEventListener('keydown', function(evento) {
+            teclasPulsadas[evento.code] = true;
+        });
+
+        document.addEventListener('keyup', function(evento) {
+            teclasPulsadas[evento.code] = false;
+        });
+
+        // Mouse
+        document.addEventListener('mousemove', function(evento) {
+            if (document.pointerLockElement === document.body) {
+                const movimientoX = evento.movementX || 0;
+                const movimientoY = evento.movementY || 0;
+
+                // Actualizar rotaciones
+                rotacionY -= movimientoX * sensibilidadMouse;
+                rotacionX -= movimientoY * sensibilidadMouse;
+
+                // Limitar pitch
+                rotacionX = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, rotacionX));
+
+                // Aplicar rotación a la cámara
+                camara.rotation.y = rotacionY;
+                camara.rotation.x = rotacionX;
+                camara.rotation.z = 0;
+            }
+        });
+
+        // Redimensionar
+        window.addEventListener('resize', function() {
+            camara.aspect = window.innerWidth / window.innerHeight;
+            camara.updateProjectionMatrix();
+            renderizador.setSize(window.innerWidth, window.innerHeight);
+        });
+    }
+
+    // ========================
+    // MOVIMIENTO
+    // ========================
+
+    function actualizarMovimiento(tiempoDelta) {
+        if (juegoTerminado) return;
+
+        const velocidad = velocidadMovimiento * tiempoDelta;
+        const direccion = new THREE.Vector3();
+
+        // Obtener dirección de entrada
+        if (teclasPulsadas['KeyW']) direccion.z = -1;  // Forward
+        if (teclasPulsadas['KeyS']) direccion.z = 1; // Backward
+        if (teclasPulsadas['KeyA']) direccion.x = -1;  // Left
+        if (teclasPulsadas['KeyD']) direccion.x = 1; // Right
+
+        if (direccion.length() === 0) return; // No hay movimiento
+
+        direccion.normalize();
+
+        // Aplicar rotación Y (horizontal) a la dirección
+        const cos = Math.cos(rotacionY);
+        const sin = Math.sin(rotacionY);
+
+        const direccionMundial = new THREE.Vector3(
+            direccion.x * cos + direccion.z * sin,
+            0,
+            -direccion.x * sin + direccion.z * cos
+        );
+
+        // Calcular nueva posición
+        const nuevaPosicion = camara.position.clone();
+        nuevaPosicion.add(direccionMundial.multiplyScalar(velocidad));
+
+        // Verificar colisiones y aplicar
+        if (verificarColisiones(nuevaPosicion)) {
+            camara.position.copy(nuevaPosicion);
+        }
+
+        // Verificar condición de victoria
+        verificarVictoria();
+    }
+
+    function verificarColisiones(nuevaPosicion) {
+        const margen = 0.5;
+
+        // Límites del área total (6 habitaciones + pasillo)
+        if (nuevaPosicion.x < -DIMENSIONES_SALA.ancho/2 + margen || nuevaPosicion.x > 200 + DIMENSIONES_SALA.ancho/2 - margen) return false;
+        if (nuevaPosicion.z < -DIMENSIONES_SALA.profundo/2 + margen || nuevaPosicion.z > 20 - margen) return false;
+
+        return true;
+    }
+
+    // ========================
+    // RENDIMIENTO
+    // ========================
+
+    function actualizarFPS(tiempoTranscurrido) {
+        contadorFrames++;
+        tiempoFPS += tiempoTranscurrido;
+
+        if (tiempoFPS >= 1000) {
+            const fps = Math.round((contadorFrames * 1000) / tiempoFPS);
+            document.getElementById('contadorFPS').textContent = fps;
+            contadorFrames = 0;
+            tiempoFPS = 0;
+        }
+    }
+
+
+
+
+    // ========================
+    // DETECCIÓN DE VICTORIA
+    // ========================
+
+    function verificarVictoria() {
+        if (juegoTerminado) return;
+
+        // Buscar el cuadro ganador en la lista de meshes
+        const cuadroGanadorData = meshCuadros.find(cuadro => cuadro.datos.esGanador);
+
+        if (!cuadroGanadorData) {
+            console.log('No se encontró cuadro ganador');
+            return;
+        }
+
+        const posicionJugador = camara.position;
+        const posicionCuadro = cuadroGanadorData.posicion;
+
+        const distancia = posicionJugador.distanceTo(posicionCuadro);
+
+        console.log(`Distancia al cuadro ganador: ${distancia.toFixed(2)}`);
+
+        if (distancia < 3.0) {
+            console.log('¡Victoria detectada!');
+            //mostrarVictoria(cuadroGanadorData.datos);
+        }
+    }
+
+
+
+    // ========================
+    // BUCLE PRINCIPAL
+    // ========================
+
+    function animar(tiempoActual) {
+        requestAnimationFrame(animar);
+
+        const tiempoDelta = reloj.getDelta();
+        const tiempoTranscurrido = tiempoActual - ultimoTiempo;
+        ultimoTiempo = tiempoActual;
+
+        actualizarMovimiento(tiempoDelta);
+        actualizarFPS(tiempoTranscurrido);
+
+        renderizador.render(escena, camara);
+    }
+
+    // ========================
+    // INICIO
+    // ========================
+
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Inicializando museo con 6 habitaciones...');
+        if (typeof THREE === 'undefined') {
+            console.error('Three.js no cargado');
+            return;
+        }
+        inicializar();
+    });
+
+    if (document.readyState !== 'loading') {
+        inicializar();
+    }
+  </script>
+</body>
+</html>
