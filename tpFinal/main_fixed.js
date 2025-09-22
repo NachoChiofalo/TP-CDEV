@@ -322,9 +322,18 @@ function crearRenderizador() {
 function crearMuseoCorregido() {
     console.log('Construyendo museo sin z-fighting...');
     
+
+    // Suelo madera
+    const texturaSuelo = new THREE.TextureLoader().load("assets/texturas/checkered_pavement_tiles_diff_1k.jpg")
+    texturaSuelo.wrapS = THREE.RepeatWrapping;
+    texturaSuelo.wrapT = THREE.RepeatWrapping;
+    texturaSuelo.repeat.set(4, 4);
+
     // Materiales
     const materialPared = new THREE.MeshLambertMaterial({ color: 0xf0f0f0 });
-    const materialSuelo = new THREE.MeshLambertMaterial({ color: 0x8b7355 });
+    //const materialSuelo = new THREE.MeshLambertMaterial({ color: 0x8b7355 });
+    const materialSuelo = new THREE.MeshLambertMaterial({ map: texturaSuelo });
+
     const materialTecho = new THREE.MeshLambertMaterial({ color: 0xfafafa });
     
     // ========== SALA 1 ==========
@@ -335,6 +344,13 @@ function crearMuseoCorregido() {
     
     // ========== SALA 2 ==========
     crearSalaCorregida(0, 12, DIMENSIONES.sala2, materialPared, materialSuelo, materialTecho, false);
+
+    // exportar la escena a JSON y copiarla a la consola
+    window.exportarEscena = function() {
+    const sceneJSON = scene.toJSON();
+    console.log(JSON.stringify(sceneJSON));
+};
+
 }
 
 function crearSalaCorregida(centroX, centroZ, dimensiones, materialPared, materialSuelo, materialTecho, esPrimera) {
