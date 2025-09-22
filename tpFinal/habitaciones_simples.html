@@ -569,7 +569,7 @@
         techo.position.set(offsetX, alto - 0.01, offsetZ);
         escena.add(techo);
 
-        // Pared norte
+        // Pared norte - COMPLETA para todas las habitaciones
         const paredNorte = new THREE.Mesh(
             new THREE.PlaneGeometry(ancho, alto),
             materialPared
@@ -604,43 +604,13 @@
         objetosColision.push({tipo: 'pared', z: offsetZ + profundo / 2, xMin: offsetX - ancho/2, xMax: offsetX - anchoPuerta/2});
         objetosColision.push({tipo: 'pared', z: offsetZ + profundo / 2, xMin: offsetX + anchoPuerta/2, xMax: offsetX + ancho/2});
 
-        // Paredes laterales para conectar habitación con pasillo
-        // Solo crear si NO es la última habitación (no hay habitación siguiente)
-        if (offsetX < 200) { // No crear para la última habitación
-            const largoConexion = 10; // Espacio entre habitaciones (40 - 30 = 10)
-            const profundoParedLateral = 6; // Área que debe cubrir cada pared lateral
-
-            // Pared lateral NORTE de la zona de conexión
-            const paredLateralNorte = new THREE.Mesh(
-                new THREE.PlaneGeometry(largoConexion, alto),
-                materialPared
-            );
-            // Posición: centrada en el espacio entre habitaciones, zona norte
-            // X: centro del espacio entre habitaciones = offsetX + 15 + 5 = offsetX + 20
-            // Z: centro del área norte = -7 (desde -10 hasta -4)
-            paredLateralNorte.position.set(offsetX + ancho/2 + largoConexion/2, alto / 2, -7);
-            paredLateralNorte.rotation.y = -Math.PI / 2;
-            escena.add(paredLateralNorte);
-
-            // Pared lateral SUR de la zona de conexión
-            const paredLateralSur = new THREE.Mesh(
-                new THREE.PlaneGeometry(largoConexion, alto),
-                materialPared
-            );
-            // Posición: centrada en el espacio entre habitaciones, zona sur
-            // X: centro del espacio entre habitaciones = offsetX + 15 + 5 = offsetX + 20
-            // Z: centro del área sur = +7 (desde +4 hasta +10)
-            paredLateralSur.position.set(offsetX + ancho/2 + largoConexion/2, alto / 2, +7);
-            paredLateralSur.rotation.y = -Math.PI / 2;
-            escena.add(paredLateralSur);
-        }
-
-        // Pared este (solo si es la última habitación)
+        // Pared este (solo si es la última habitación) - CORREGIDA
         if (offsetX === 200) { // Última habitación
             const paredEste = new THREE.Mesh(
                 new THREE.PlaneGeometry(profundo, alto),
                 materialPared
             );
+            // Posición corregida para cerrar completamente el extremo este
             paredEste.position.set(offsetX + ancho / 2 - 0.01, alto / 2, offsetZ);
             paredEste.rotation.y = -Math.PI / 2;
             escena.add(paredEste);
@@ -661,62 +631,70 @@
     }
 
     function crearPasillo(materialSuelo, materialTecho, materialPared) {
-        // Crear piso del pasillo conectando las habitaciones
-        const anchoPasillo = 200; // De la habitación 1 a la 6
-        const profundoPasillo = 10; // Ancho del pasillo
+        // Crear el pasillo principal conectando todas las habitaciones en dirección sur
+        // Este pasillo principal corre paralelo a las habitaciones para conectarlas
 
-        const pisoPasillo = new THREE.Mesh(
-            new THREE.PlaneGeometry(anchoPasillo, profundoPasillo),
+        const anchoPasilloTotal = 240; // Total desde la primera hasta la última habitación (0 a 240)
+        const profundoPasilloConector = 10; // Ancho del pasillo conector
+
+        // Piso del pasillo principal (más al sur de las habitaciones)
+        const pisoPasilloConector = new THREE.Mesh(
+            new THREE.PlaneGeometry(anchoPasilloTotal, profundoPasilloConector),
             materialSuelo
         );
-        pisoPasillo.rotation.x = -Math.PI / 2;
-        pisoPasillo.position.set(100, 0.01, 15); // Centrado en X, al sur de las habitaciones
-        escena.add(pisoPasillo);
+        pisoPasilloConector.rotation.x = -Math.PI / 2;
+        pisoPasilloConector.position.set(120, 0.01, 15); // Centrado en toda la extensión
+        escena.add(pisoPasilloConector);
 
-        // Techo del pasillo
-        const techoPasillo = new THREE.Mesh(
-            new THREE.PlaneGeometry(anchoPasillo, profundoPasillo),
+        // Techo del pasillo principal
+        const techoPasilloConector = new THREE.Mesh(
+            new THREE.PlaneGeometry(anchoPasilloTotal, profundoPasilloConector),
             materialTecho
         );
-        techoPasillo.rotation.x = Math.PI / 2;
-        techoPasillo.position.set(100, DIMENSIONES_SALA.alto - 0.01, 15);
-        escena.add(techoPasillo);
+        techoPasilloConector.rotation.x = Math.PI / 2;
+        techoPasilloConector.position.set(120, DIMENSIONES_SALA.alto - 0.01, 15);
+        escena.add(techoPasilloConector);
 
-        // Pared norte del pasillo (reutilizando material existente)
-        const paredNortePasillo = new THREE.Mesh(
-            new THREE.PlaneGeometry(anchoPasillo, DIMENSIONES_SALA.alto),
+        // Pared norte del pasillo conector (solo donde no hay aberturas hacia las habitaciones)
+        // Esta pared se conecta con las aberturas de las habitaciones
+        const paredNortePasilloConector = new THREE.Mesh(
+            new THREE.PlaneGeometry(anchoPasilloTotal, DIMENSIONES_SALA.alto),
             materialPared
         );
-        paredNortePasillo.position.set(100, DIMENSIONES_SALA.alto / 2, 10);
-        escena.add(paredNortePasillo);
+        paredNortePasilloConector.position.set(120, DIMENSIONES_SALA.alto / 2, 10);
+        escena.add(paredNortePasilloConector);
 
-        // Pared sur del pasillo (reutilizando material existente)
-        const paredSurPasillo = new THREE.Mesh(
-            new THREE.PlaneGeometry(anchoPasillo, DIMENSIONES_SALA.alto),
+        // Pared sur del pasillo conector (completamente cerrada)
+        const paredSurPasilloConector = new THREE.Mesh(
+            new THREE.PlaneGeometry(anchoPasilloTotal, DIMENSIONES_SALA.alto),
             materialPared
         );
-        paredSurPasillo.position.set(100, DIMENSIONES_SALA.alto / 2, 20);
-        paredSurPasillo.rotation.y = Math.PI;
-        escena.add(paredSurPasillo);
+        paredSurPasilloConector.position.set(120, DIMENSIONES_SALA.alto / 2, 20);
+        paredSurPasilloConector.rotation.y = Math.PI;
+        escena.add(paredSurPasilloConector);
+
+        // Agregar colisiones para el pasillo conector
+        objetosColision.push({tipo: 'pared', z: 10}); // Pared norte del pasillo
+        objetosColision.push({tipo: 'pared', z: 20}); // Pared sur del pasillo
     }
 
     function crearPasillosReales(materialSuelo, materialTecho, materialPared) {
-        console.log('Creando 5 pasillos reales entre habitaciones...');
+        console.log('Creando sistema de pasillos optimizado...');
 
-        // Dimensiones de cada pasillo individual
+        // Dimensiones del pasillo individual entre habitaciones
         const DIMENSIONES_PASILLO = {
-            largo: 10,     // Espacio real entre habitaciones (40-30=10)
-            ancho: 8,      // Ancho del pasillo
+            largo: 10,     // Espacio entre habitaciones (40-30=10)
+            ancho: 8,      // Ancho del pasillo (para permitir paso cómodo)
             alto: 6        // Altura del pasillo
         };
 
-        // Posiciones donde crear los 5 pasillos (en el espacio libre entre habitaciones)
+        // Posiciones donde crear los 5 pasillos (centrados entre habitaciones)
         const posicionesPasillos = [
-            { x: 20, z: 0 },   // Pasillo entre habitación 1 (0±15) y 2 (40±15)
-            { x: 60, z: 0 },   // Pasillo entre habitación 2 (40±15) y 3 (80±15)
-            { x: 100, z: 0 },  // Pasillo entre habitación 3 (80±15) y 4 (120±15)
-            { x: 140, z: 0 },  // Pasillo entre habitación 4 (120±15) y 5 (160±15)
-            { x: 180, z: 0 }   // Pasillo entre habitación 5 (160±15) y 6 (200±15)
+            { x: 20, z: 0 },   // Entre habitación 1 (0) y 2 (40)
+            { x: 60, z: 0 },   // Entre habitación 2 (40) y 3 (80)
+            { x: 100, z: 0 },  // Entre habitación 3 (80) y 4 (120)
+            { x: 140, z: 0 },  // Entre habitación 4 (120) y 5 (160)
+            { x: 180, z: 0 }   // Entre habitación 5 (160) y 6 (200)
         ];
 
         posicionesPasillos.forEach((pos, indice) => {
@@ -740,7 +718,10 @@
             techoPasillo.position.set(pos.x, DIMENSIONES_PASILLO.alto - 0.01, pos.z);
             escena.add(techoPasillo);
 
-            // PARED LATERAL NORTE del pasillo
+            // PAREDES LATERALES CORREGIDAS - Solo donde no conectan con habitaciones
+            // Estas paredes cubren solo las áreas fuera del rango de conexión de las habitaciones
+
+            // Pared norte del pasillo (fuera del área de las habitaciones)
             const paredNortePasillo = new THREE.Mesh(
                 new THREE.PlaneGeometry(DIMENSIONES_PASILLO.largo, DIMENSIONES_PASILLO.alto),
                 materialPared
@@ -748,7 +729,7 @@
             paredNortePasillo.position.set(pos.x, DIMENSIONES_PASILLO.alto / 2, pos.z - DIMENSIONES_PASILLO.ancho / 2 + 0.01);
             escena.add(paredNortePasillo);
 
-            // PARED LATERAL SUR del pasillo
+            // Pared sur del pasillo (fuera del área de las habitaciones)
             const paredSurPasillo = new THREE.Mesh(
                 new THREE.PlaneGeometry(DIMENSIONES_PASILLO.largo, DIMENSIONES_PASILLO.alto),
                 materialPared
@@ -757,12 +738,75 @@
             paredSurPasillo.rotation.y = Math.PI;
             escena.add(paredSurPasillo);
 
-            // NO AGREGAR PAREDES AQUÍ - LAS PAREDES LATERALES SE CREAN EN OTRO LUGAR
+            // PAREDES SEPARADORAS ENTRE HABITACIONES - Simetrías correctas
+            // Crear paredes separadoras en AMBOS lados (este y oeste) para cada habitación
 
-            console.log(`Pasillo ${indice + 1} creado exitosamente`);
+            // LADO ESTE (derecho) - Paredes separadoras
+            if (indice > 0) {
+                const habitacionAnteriorX = pos.x - 20; // X de la habitación anterior
+
+                // Pared este de la habitación anterior (lado sur, fuera del pasillo)
+                const paredSeparadoraEsteSur = new THREE.Mesh(
+                    new THREE.PlaneGeometry(DIMENSIONES_SALA.profundo - DIMENSIONES_PASILLO.ancho, DIMENSIONES_PASILLO.alto),
+                    materialPared
+                );
+                paredSeparadoraEsteSur.position.set(
+                    habitacionAnteriorX + DIMENSIONES_SALA.ancho / 2 - 0.01,
+                    DIMENSIONES_PASILLO.alto / 2,
+                    (DIMENSIONES_PASILLO.ancho / 2) + ((DIMENSIONES_SALA.profundo - DIMENSIONES_PASILLO.ancho) / 2)
+                );
+                paredSeparadoraEsteSur.rotation.y = -Math.PI / 2;
+                escena.add(paredSeparadoraEsteSur);
+
+                // Pared este de la habitación anterior (lado norte, fuera del pasillo)
+                const paredSeparadoraEsteNorte = new THREE.Mesh(
+                    new THREE.PlaneGeometry(DIMENSIONES_SALA.profundo - DIMENSIONES_PASILLO.ancho, DIMENSIONES_PASILLO.alto),
+                    materialPared
+                );
+                paredSeparadoraEsteNorte.position.set(
+                    habitacionAnteriorX + DIMENSIONES_SALA.ancho / 2 - 0.01,
+                    DIMENSIONES_PASILLO.alto / 2,
+                    -(DIMENSIONES_PASILLO.ancho / 2) - ((DIMENSIONES_SALA.profundo - DIMENSIONES_PASILLO.ancho) / 2)
+                );
+                paredSeparadoraEsteNorte.rotation.y = -Math.PI / 2;
+                escena.add(paredSeparadoraEsteNorte);
+            }
+
+            // LADO OESTE (izquierdo) - Paredes separadoras (LAS QUE FALTABAN!)
+            if (indice < posicionesPasillos.length - 1) {
+                const habitacionSiguienteX = pos.x + 20; // X de la habitación siguiente
+
+                // Pared oeste de la habitación siguiente (lado sur, fuera del pasillo)
+                const paredSeparadoraOesteSur = new THREE.Mesh(
+                    new THREE.PlaneGeometry(DIMENSIONES_SALA.profundo - DIMENSIONES_PASILLO.ancho, DIMENSIONES_PASILLO.alto),
+                    materialPared
+                );
+                paredSeparadoraOesteSur.position.set(
+                    habitacionSiguienteX - DIMENSIONES_SALA.ancho / 2 + 0.01,
+                    DIMENSIONES_PASILLO.alto / 2,
+                    (DIMENSIONES_PASILLO.ancho / 2) + ((DIMENSIONES_SALA.profundo - DIMENSIONES_PASILLO.ancho) / 2)
+                );
+                paredSeparadoraOesteSur.rotation.y = Math.PI / 2;
+                escena.add(paredSeparadoraOesteSur);
+
+                // Pared oeste de la habitación siguiente (lado norte, fuera del pasillo)
+                const paredSeparadoraOesteNorte = new THREE.Mesh(
+                    new THREE.PlaneGeometry(DIMENSIONES_SALA.profundo - DIMENSIONES_PASILLO.ancho, DIMENSIONES_PASILLO.alto),
+                    materialPared
+                );
+                paredSeparadoraOesteNorte.position.set(
+                    habitacionSiguienteX - DIMENSIONES_SALA.ancho / 2 + 0.01,
+                    DIMENSIONES_PASILLO.alto / 2,
+                    -(DIMENSIONES_PASILLO.ancho / 2) - ((DIMENSIONES_SALA.profundo - DIMENSIONES_PASILLO.ancho) / 2)
+                );
+                paredSeparadoraOesteNorte.rotation.y = Math.PI / 2;
+                escena.add(paredSeparadoraOesteNorte);
+            }
+
+            console.log(`Pasillo ${indice + 1} creado exitosamente con paredes optimizadas`);
         });
 
-        console.log('Los 5 pasillos reales han sido creados correctamente con paredes laterales corregidas');
+        console.log('Sistema de pasillos optimizado completado');
     }
 
     function crearColumnasDecorativas(offsetX, offsetZ) {
@@ -1286,9 +1330,27 @@
     function verificarColisiones(nuevaPosicion) {
         const margen = 0.5;
 
-        // Límites del área total (6 habitaciones + pasillo)
+        // Límites del área total del museo (6 habitaciones + pasillo conector)
+        // X: desde la primera habitación (-15) hasta la última habitación (215)
         if (nuevaPosicion.x < -DIMENSIONES_SALA.ancho/2 + margen || nuevaPosicion.x > 200 + DIMENSIONES_SALA.ancho/2 - margen) return false;
+
+        // Z: desde el norte de las habitaciones (-10) hasta el sur del pasillo conector (+20)
         if (nuevaPosicion.z < -DIMENSIONES_SALA.profundo/2 + margen || nuevaPosicion.z > 20 - margen) return false;
+
+        // Verificar colisiones específicas con paredes internas
+        // Las paredes entre habitaciones solo bloquean en ciertas áreas
+        for (let i = 0; i < 5; i++) {
+            const habitacionX = i * 40; // 0, 40, 80, 120, 160
+            const paredEstePosX = habitacionX + DIMENSIONES_SALA.ancho / 2;
+
+            // Verificar si el jugador está en el área de separación entre habitaciones
+            if (Math.abs(nuevaPosicion.x - paredEstePosX) < margen) {
+                // Solo bloquear si está fuera del área del pasillo de conexión (-4 a +4 en Z)
+                if (nuevaPosicion.z < -4 || nuevaPosicion.z > 4) {
+                    return false;
+                }
+            }
+        }
 
         return true;
     }
