@@ -235,6 +235,9 @@
     <!-- GLTFLoader -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
+    <!-- Agrega esto después de three.js y GLTFLoader -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+
 
   <script>
     // Verificar que Three.js se haya cargado
@@ -1283,6 +1286,175 @@
             renderizador.setSize(window.innerWidth, window.innerHeight);
         });
     }
+
+   // ========================
+// EXPORTADOR AVANZADO
+// ========================
+
+class ExportadorMuseo {
+    constructor() {
+        this.prepararEscenaParaExportacion();
+    }
+    
+    prepararEscenaParaExportacion() {
+        // Limpiar elementos temporales antes de exportar
+        this.removerElementosTemporales();
+        this.optimizarMateriales();
+    }
+    
+    removerElementosTemporales() {
+        // Remover elementos que no deben exportarse
+        const elementosARemover = [];
+        
+        escena.traverse(function (objeto) {
+            // Remover luces puntuales que puedan causar problemas
+            if (objeto instanceof THREE.PointLight) {
+                elementosARemover.push(objeto);
+            }
+            
+            // Remover objetos con materiales especiales
+            if (objeto.material && objeto.material.emissive) {
+                objeto.material.emissive.set(0x000000);
+            }
+        });
+        
+        elementosARemover.forEach(objeto => {
+            if (objeto.parent) {
+                objeto.parent.remove(objeto);
+            }
+        });
+    }
+    
+    optimizarMateriales() {
+        // Optimizar materiales para mejor exportación
+        escena.traverse(function (objeto) {
+            if (objeto.material) {
+                // Asegurar que los materiales tengan nombres
+                if (!objeto.material.name) {
+                    objeto.material.name = 'material_' + objeto.id;
+                }
+                
+                // Simplificar materiales complejos
+                if (objeto.material instanceof THREE.MeshLambertMaterial) {
+                    // Convertir a MeshStandardMaterial para mejor compatibilidad
+                    objeto.material = new THREE.MeshStandardMaterial({
+                        map: objeto.material.map,
+                        color: objeto.material.color
+                    });
+                }
+            }
+            
+            // Asegurar que los objetos tengan nombres
+            if (!objeto.name) {
+                objeto.name = 'objeto_' + objeto.id;
+            }
+        });
+    }
+    
+    exportarGLTF() {
+        return new Promise((resolve, reject) => {
+            console.log('Preparando exportación GLTF...');
+            
+            this.prepararEscenaParaExportacion();
+            
+            const exporter = new THREE.GLTFExporter();
+            const opciones = {
+                binary: false,
+                trs: false,
+                onlyVisible: true,
+                embedImages: true, // Incrustar texturas en el archivo
+                animations: [] // No exportar animaciones por ahora
+            };
+            
+            exporter.parse(
+                escena,
+                (gltf) => {
+                    console.log('✅ Exportación GLTF completada');
+                    resolve(gltf);
+                },
+                (error) => {
+                    console.error('❌ Error en exportación GLTF:', error);
+                    reject(error);
+                },
+                opciones
+            );
+        });
+    }
+    
+    exportarGLB() {
+        return new Promise((resolve, reject) => {
+            console.log('Preparando exportación GLB...');
+            
+            this.prepararEscenaParaExportacion();
+            
+            const exporter = new THREE.GLTFExporter();
+            const opciones = {
+                binary: true,
+                trs: false,
+                onlyVisible: true
+            };
+            
+            exporter.parse(
+                escena,
+                (glb) => {
+                    console.log('✅ Exportación GLB completada');
+                    resolve(glb);
+                },
+                (error) => {
+                    console.error('❌ Error en exportación GLB:', error);
+                    reject(error);
+                },
+                opciones
+            );
+        });
+    }
+    
+    descargarArchivo(contenido, nombreArchivo, tipoMIME) {
+        const blob = new Blob([contenido], { type: tipoMIME });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = nombreArchivo;
+        link.style.display = 'none';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Limpiar
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+}
+
+// Funciones simplificadas para usar con los botones
+async function exportarMuseoGLTF() {
+    try {
+        const exportador = new ExportadorMuseo();
+        const gltf = await exportador.exportarGLTF();
+        
+        // Convertir a JSON
+        const gltfJSON = JSON.stringify(gltf, null, 2);
+        exportador.descargarArchivo(gltfJSON, 'museo-virtual.gltf', 'application/json');
+        
+        alert('✅ Museo exportado como GLTF correctamente!');
+    } catch (error) {
+        alert('❌ Error al exportar: ' + error.message);
+    }
+}
+
+async function exportarMuseoGLB() {
+    try {
+        const exportador = new ExportadorMuseo();
+        const glb = await exportador.exportarGLB();
+        
+        exportador.descargarArchivo(glb, 'museo-virtual.glb', 'application/octet-stream');
+        
+        alert('✅ Museo exportado como GLB correctamente!');
+    } catch (error) {
+        alert('❌ Error al exportar: ' + error.message);
+    }
+}
 
     // ========================
     // MOVIMIENTO
