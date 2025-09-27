@@ -1,194 +1,195 @@
-/* Estilos generales */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
-body {
-  margin: 0;
-  overflow: hidden;
-  font-family: 'Arial', sans-serif;
-  background-color: #1a1a1a;
-  color: white;
-}
+    /* Estilos generales */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-canvas {
-  display: block;
-  cursor: grab;
-}
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Arial', sans-serif;
+      background-color: #1a1a1a;
+      color: white;
+    }
 
-canvas:active {
-  cursor: grabbing;
-}
+    canvas {
+      display: block;
+      cursor: grab;
+    }
 
-/* Interfaz de usuario */
-#interfazUsuario {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  pointer-events: none;
-}
+    canvas:active {
+      cursor: grabbing;
+    }
 
-#instrucciones {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 15px 20px;
-  border-radius: 10px;
-  border: 2px solid #d4af37;
-  backdrop-filter: blur(10px);
-  max-width: 300px;
-}
+    /* Interfaz de usuario */
+    #interfazUsuario {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      pointer-events: none;
+    }
 
-#instrucciones h3 {
-  color: #d4af37;
-  margin-bottom: 10px;
-  font-size: 16px;
-}
+    #instrucciones {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px 20px;
+      border-radius: 10px;
+      border: 2px solid #d4af37;
+      backdrop-filter: blur(10px);
+      max-width: 300px;
+    }
 
-#instrucciones p {
-  margin: 5px 0;
-  font-size: 14px;
-  color: #e0e0e0;
-}
+    #instrucciones h3 {
+      color: #d4af37;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
 
-#instrucciones strong {
-  color: #d4af37;
-}
+    #instrucciones p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #e0e0e0;
+    }
 
-/* Contador de FPS */
-#infoFPS {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 10px 15px;
-  border-radius: 8px;
-  border: 1px solid #d4af37;
-  font-size: 14px;
-  font-weight: bold;
-  color: #d4af37;
-}
+    #instrucciones strong {
+      color: #d4af37;
+    }
 
-/* Pantalla de bloqueo */
-#bloqueador {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    /* Contador de FPS */
+    #infoFPS {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 1px solid #d4af37;
+      font-size: 14px;
+      font-weight: bold;
+      color: #d4af37;
+    }
 
-#menuInicio {
-  text-align: center;
-  background: rgba(0, 0, 0, 0.9);
-  padding: 40px;
-  border-radius: 15px;
-  border: 3px solid #d4af37;
-  backdrop-filter: blur(10px);
-  max-width: 400px;
-}
+    /* Pantalla de bloqueo */
+    #bloqueador {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-#menuInicio h1 {
-  color: #d4af37;
-  font-size: 2.5em;
-  margin-bottom: 20px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-}
+    #menuInicio {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 40px;
+      border-radius: 15px;
+      border: 3px solid #d4af37;
+      backdrop-filter: blur(10px);
+      max-width: 400px;
+    }
 
-/* Información de obras de arte */
-.info-obra {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.9);
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
-  border: 2px solid #d4af37;
-  max-width: 400px;
-  text-align: center;
-  display: none;
-  z-index: 200;
-}
+    #menuInicio h1 {
+      color: #d4af37;
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
 
-.info-obra h3 {
-  color: #d4af37;
-  margin-bottom: 10px;
-}
+    /* Información de obras de arte */
+    .info-obra {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #d4af37;
+      max-width: 400px;
+      text-align: center;
+      display: none;
+      z-index: 200;
+    }
 
-.info-obra p {
-  margin: 5px 0;
-  line-height: 1.4;
-}
+    .info-obra h3 {
+      color: #d4af37;
+      margin-bottom: 10px;
+    }
 
-#menuInicio p {
-  color: #e0e0e0;
-  font-size: 1.2em;
-  margin-bottom: 30px;
-  line-height: 1.4;
-}
+    .info-obra p {
+      margin: 5px 0;
+      line-height: 1.4;
+    }
 
-#botonIniciar {
-  background: linear-gradient(45deg, #d4af37, #f4d03f);
-  color: #1a1a1a;
-  border: none;
-  padding: 15px 30px;
-  font-size: 18px;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
+    #menuInicio p {
+      color: #e0e0e0;
+      font-size: 1.2em;
+      margin-bottom: 30px;
+      line-height: 1.4;
+    }
 
-#botonIniciar:hover {
-  background: linear-gradient(45deg, #f4d03f, #d4af37);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-}
+    #botonIniciar {
+      background: linear-gradient(45deg, #d4af37, #f4d03f);
+      color: #1a1a1a;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
 
-#botonIniciar:active {
-  transform: translateY(0);
-}
+    #botonIniciar:hover {
+      background: linear-gradient(45deg, #f4d03f, #d4af37);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+    }
 
-/* Estado oculto */
-.oculto {
-  display: none !important;
-}
+    #botonIniciar:active {
+      transform: translateY(0);
+    }
 
-/* Responsive */
-@media (max-width: 768px) {
-  #instrucciones {
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    max-width: none;
-    font-size: 12px;
-  }
-  
-  #infoFPS {
-    top: 10px;
-    right: 10px;
-    font-size: 12px;
-  }
-  
-  #menuInicio {
-    margin: 20px;
-    padding: 30px;
-  }
-  
-  #menuInicio h1 {
-    font-size: 2em;
-  }
-}
+    /* Estado oculto */
+    .oculto {
+      display: none !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      #instrucciones {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        max-width: none;
+        font-size: 12px;
+      }
+      
+      #infoFPS {
+        top: 10px;
+        right: 10px;
+        font-size: 12px;
+      }
+      
+      #menuInicio {
+        margin: 20px;
+        padding: 30px;
+      }
+      
+      #menuInicio h1 {
+        font-size: 2em;
+      }
+    }

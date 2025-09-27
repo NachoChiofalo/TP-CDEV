@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Museo Virtual 3D - Three.js</title>
-  
+  <title>Museo Virtual - Gran Sala</title>
   <link rel="stylesheet" href="style.css" />
+  
 </head>
 <body>
   <!-- Interfaz de usuario -->
@@ -26,23 +26,20 @@
   <!-- Bloqueador para cuando se pierde el pointer lock -->
   <div id="bloqueador">
     <div id="menuInicio">
-      <h1>Museo Virtual 3D</h1>
-      <p>Una experiencia inmersiva en primera persona</p>
+      <h1>Museo Virtual - Gran Sala</h1>
+      <p>Explora esta galería con obras maestras del arte</p>
       <button id="botonIniciar">Entrar al Museo</button>
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="libs/three.min.js"></script> 
-  <script>
-    // Verificar que Three.js se haya cargado
-    if (typeof THREE === 'undefined') {
-      console.error('Three.js no se cargó correctamente');
-      alert('Error cargando Three.js. Verifica la ruta del archivo.');
-    } else {
-      console.log('Three.js cargado correctamente, versión:', THREE.REVISION);
-    }
-  </script>
-  <script src="main_fixed.js"></script>
+ <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+    <script src="main.js"></script>
+
+ 
 </body>
 </html>
