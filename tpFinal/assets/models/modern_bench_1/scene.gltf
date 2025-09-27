@@ -1,0 +1,515 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 1234,
+      "max": [
+        0.6500000953674316,
+        0.2748272120952606,
+        0.4498272240161896
+      ],
+      "min": [
+        -0.6500000953674316,
+        -0.2748272120952606,
+        0.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 14808,
+      "componentType": 5126,
+      "count": 1234,
+      "max": [
+        1.0,
+        0.8749191164970398,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -0.8749191761016846,
+        -0.9143770337104797
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 1234,
+      "max": [
+        1.0,
+        0.9999956488609314,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -0.9665306806564331,
+        -1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 1234,
+      "max": [
+        1.1986145973205566,
+        1.198614478111267
+      ],
+      "min": [
+        -0.19861459732055664,
+        -0.19861456751823425
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 9872,
+      "componentType": 5126,
+      "count": 1234,
+      "max": [
+        1.1986145973205566,
+        1.198614478111267
+      ],
+      "min": [
+        -0.19861459732055664,
+        -0.19861456751823425
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 19744,
+      "componentType": 5126,
+      "count": 1234,
+      "max": [
+        1.1986145973205566,
+        1.198614478111267
+      ],
+      "min": [
+        -0.19861459732055664,
+        -0.19861456751823425
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 4206,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 29616,
+      "componentType": 5126,
+      "count": 1260,
+      "max": [
+        0.6353458762168884,
+        0.2793588638305664,
+        0.45420676469802856
+      ],
+      "min": [
+        -0.6353458762168884,
+        -0.2793588638305664,
+        0.3051894009113312
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 44736,
+      "componentType": 5126,
+      "count": 1260,
+      "max": [
+        0.9974915385246277,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -0.9974915385246277,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 19744,
+      "componentType": 5126,
+      "count": 1260,
+      "max": [
+        0.45147979259490967,
+        0.9994336366653442,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -0.45147979259490967,
+        -1.0,
+        -1.0,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 29616,
+      "componentType": 5126,
+      "count": 1260,
+      "max": [
+        0.965263307094574,
+        0.9690519571304321
+      ],
+      "min": [
+        0.026343584060668945,
+        0.026253066956996918
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 39696,
+      "componentType": 5126,
+      "count": 1260,
+      "max": [
+        0.965263307094574,
+        0.9690519571304321
+      ],
+      "min": [
+        0.026343584060668945,
+        0.026253066956996918
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 49776,
+      "componentType": 5126,
+      "count": 1260,
+      "max": [
+        0.965263307094574,
+        0.9690519571304321
+      ],
+      "min": [
+        0.026343584060668945,
+        0.026253066956996918
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 16824,
+      "componentType": 5125,
+      "count": 1728,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "Elasta Kristya (https://sketchfab.com/luca3d)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/modern-bench-1-caa4515e36444e4c8c100296463e83c1",
+      "title": "Modern Bench 1"
+    },
+    "generator": "Sketchfab-12.68.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 23736,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 59856,
+      "byteOffset": 23736,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 59856,
+      "byteOffset": 83592,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 39904,
+      "byteOffset": 143448,
+      "byteStride": 16,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 183352,
+      "uri": "scene.bin"
+    }
+  ],
+  "extensionsRequired": [
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
+  "extensionsUsed": [
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
+  "images": [
+    {
+      "uri": "textures/Stainless_Steel_diffuse.jpeg"
+    },
+    {
+      "uri": "textures/Stainless_Steel_specularGlossiness.png"
+    },
+    {
+      "uri": "textures/Stainless_Steel_normal.jpeg"
+    },
+    {
+      "uri": "textures/Wood_diffuse.jpeg"
+    },
+    {
+      "uri": "textures/Wood_specularGlossiness.png"
+    },
+    {
+      "uri": "textures/Wood_normal.jpeg"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuseTexture": {
+            "index": 0
+          },
+          "glossinessFactor": 1.0,
+          "specularFactor": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "specularGlossinessTexture": {
+            "index": 1
+          }
+        }
+      },
+      "name": "Stainless_Steel",
+      "normalTexture": {
+        "index": 2
+      }
+    },
+    {
+      "doubleSided": true,
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuseTexture": {
+            "index": 3
+          },
+          "glossinessFactor": 1.0,
+          "specularFactor": [
+            0.28,
+            0.28,
+            0.28
+          ],
+          "specularGlossinessTexture": {
+            "index": 4
+          }
+        }
+      },
+      "name": "Wood",
+      "normalTexture": {
+        "index": 5,
+        "scale": 0.5
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Modern Bench 1_Stainless Steel_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TANGENT": 2,
+            "TEXCOORD_0": 3,
+            "TEXCOORD_1": 4,
+            "TEXCOORD_2": 5
+          },
+          "indices": 6,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "Modern Bench 1_Wood_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 8,
+            "POSITION": 7,
+            "TANGENT": 9,
+            "TEXCOORD_0": 10,
+            "TEXCOORD_1": 11,
+            "TEXCOORD_2": 12
+          },
+          "indices": 13,
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        0.009999999776482582,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.2204459996194763e-18,
+        -0.009999999776482582,
+        0.0,
+        0.0,
+        0.009999999776482582,
+        2.2204459996194763e-18,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        -1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Modern Bench 1.fbx"
+    },
+    {
+      "children": [
+        3
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        4,
+        5
+      ],
+      "matrix": [
+        100.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.629206793918314e-05,
+        -99.99999999999868,
+        0.0,
+        0.0,
+        99.99999999999868,
+        -1.629206793918314e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Modern Bench 1"
+    },
+    {
+      "mesh": 0,
+      "name": "Modern Bench 1_Stainless Steel_0"
+    },
+    {
+      "mesh": 1,
+      "name": "Modern Bench 1_Wood_0"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    },
+    {
+      "sampler": 0,
+      "source": 3
+    },
+    {
+      "sampler": 0,
+      "source": 4
+    },
+    {
+      "sampler": 0,
+      "source": 5
+    }
+  ]
+}

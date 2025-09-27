@@ -1,0 +1,11 @@
+Model Information:
+* title:	Simple Low Poly Character
+* source:	https://sketchfab.com/3d-models/simple-low-poly-character-5ee952af02634ffeab649ab9fba66bfb
+* author:	PIXELOKAY (https://sketchfab.com/PIXELOKAY)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Simple Low Poly Character" (https://sketchfab.com/3d-models/simple-low-poly-character-5ee952af02634ffeab649ab9fba66bfb) by PIXELOKAY (https://sketchfab.com/PIXELOKAY) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
