@@ -815,6 +815,14 @@ function configurarControles() {
             musicaDefault.play();
             musicaActual = musicaDefault;
         }
+
+        // Reproducir narración inicial solo la primera vez
+        if (narracionInicial && !narracionReproducida) {
+            narracionInicial.currentTime = 0;
+            narracionInicial.play();
+            narracionReproducida = true;
+            console.log('Reproduciendo narración inicial...');
+        }
     });
 
     document.addEventListener('pointerlockchange', cambiarPointerLock);
@@ -1105,6 +1113,8 @@ if (document.readyState !== 'loading') {
 // ========================
 let musicaActual = null;
 let musicaDefault = null;
+let narracionInicial = null;
+let narracionReproducida = false;
 const habitacionesMusica = [
     {
         nombre: 'Cuadrado 1',
@@ -1139,6 +1149,11 @@ function inicializarMusicaAmbiental() {
     musicaDefault = new Audio('assets/audio/default.mp3');
     musicaDefault.loop = true;
     musicaDefault.volume = 0.1;
+
+    // Narración inicial (se reproduce solo una vez)
+    narracionInicial = new Audio('assets/audio/narracion_galeria.mp3');
+    narracionInicial.loop = false;
+    narracionInicial.volume = 0.3; // Más alto que la música (0.1)
 }
 
 function actualizarMusicaAmbiental() {
