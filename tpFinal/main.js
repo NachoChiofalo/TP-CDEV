@@ -20,6 +20,9 @@ let cargadorTexturas;
 
 // Personas caminando
 let personas = [];
+// Puertas interactuables
+let puertasInteractuables = [];
+
 
 // Variables de control
 let teclasPulsadas = {};
@@ -44,7 +47,7 @@ let sensibilidadMouse = 0.002;
 // Dimensiones de la sala única
 const DIMENSIONES_SALA = {
     ancho: 60,
-    alto: 6,
+    alto: 5,
     profundo: 40
 };
 
@@ -197,8 +200,9 @@ function crearEscena() {
 
 function crearCamara() {
     camara = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-    camara.position.set(26, 1.6, 0);
+    camara.position.set(26, 3.0, 0); // Altura más cercana al techo
     camara.rotation.order = 'YXZ'; // Importante para evitar gimbal lock
+
 }
 
 function crearRenderizador() {
@@ -313,7 +317,7 @@ function crearSalaUnica() {
 
 
     const paredPasilloPuertaDer1 = new THREE.Mesh(
-        new THREE.PlaneGeometry(10, alto),
+        new THREE.PlaneGeometry(14.2, alto),
         materialPared
     )
     paredPasilloPuertaDer1.position.set(-25, alto / 2, -5);
@@ -330,8 +334,24 @@ function crearSalaUnica() {
     escena.add(paredPasilloPuertaDer2);
     objetosColision.push({ tipo: 'pared', z: -5, xMin: -14.5, xMax: -4.5 }); // ← COLISIÓN
 
+    const paredPasilloSobrePuerta2 = new THREE.Mesh(
+    new THREE.PlaneGeometry(38, 0.6),
+    materialPared
+    )
+    paredPasilloSobrePuerta2.position.set(0, 4.7, -5);
+    escena.add(paredPasilloSobrePuerta2);
+    objetosColision.push({ tipo: 'pared', z: -5, xMin: -14.5, xMax: -4.5 }); // ← COLISIÓN
+
 
     // CUADRADO 2 
+
+    const paredPasilloSobrePuerta1 = new THREE.Mesh(
+    new THREE.PlaneGeometry(38, 0.6),
+    materialPared
+    )
+    paredPasilloSobrePuerta1.position.set(0, 4.7, 5);
+    escena.add(paredPasilloSobrePuerta1);
+    objetosColision.push({ tipo: 'pared', z: 5, xMin: -14.5, xMax: -4.5 }); // ← COLISIÓN
 
     const paredFrontDer = new THREE.Mesh(
         new THREE.PlaneGeometry(15, alto),
@@ -344,7 +364,7 @@ function crearSalaUnica() {
 
 
     const paredPasilloPuertaDer3 = new THREE.Mesh(
-        new THREE.PlaneGeometry(10, alto),
+        new THREE.PlaneGeometry(14.2, alto),
         materialPared
     )
     paredPasilloPuertaDer3.position.set(0, alto / 2, -5);
@@ -373,7 +393,7 @@ function crearSalaUnica() {
 
 
     const paredPasilloPuertaIzq1 = new THREE.Mesh(
-        new THREE.PlaneGeometry(10, alto),
+        new THREE.PlaneGeometry(14.2, alto),
         materialPared
     )
     paredPasilloPuertaIzq1.position.set(-25, alto / 2, 5);
@@ -404,7 +424,7 @@ function crearSalaUnica() {
 
 
     const paredPasilloPuertaIzq3 = new THREE.Mesh(
-        new THREE.PlaneGeometry(10, alto),
+        new THREE.PlaneGeometry(14.2, alto),
         materialPared
     )
     paredPasilloPuertaIzq3.position.set(0, alto / 2, 5);
@@ -421,8 +441,8 @@ function crearSalaUnica() {
 
     // Columnas decorativas
     crearColumnasDecorativas();
-}
 
+}
 
 function crearColumnasDecorativas() {
     const materialColumna = new THREE.MeshLambertMaterial({ color: 0xd4af37 });
@@ -433,12 +453,16 @@ function crearColumnasDecorativas() {
         { x: -DIMENSIONES_SALA.ancho / 2 + 1, z: -DIMENSIONES_SALA.profundo / 2 + 1 },
         { x: DIMENSIONES_SALA.ancho / 2 - 1, z: -DIMENSIONES_SALA.profundo / 2 + 1 },
         { x: -DIMENSIONES_SALA.ancho / 2 + 1, z: DIMENSIONES_SALA.profundo / 2 - 1 },
-        { x: DIMENSIONES_SALA.ancho / 2 - 1, z: DIMENSIONES_SALA.profundo / 2 - 1 }
+        { x: DIMENSIONES_SALA.ancho / 2 - 1, z: DIMENSIONES_SALA.profundo / 2 - 1 },
+        { x: 2, z: 0 },
+        { x: -10, z: 0 },
+        { x: 19, z: 0 },
     ];
 
     posicionesColumnas.forEach(pos => {
         const columna = new THREE.Mesh(geometriaColumna, materialColumna);
         columna.position.set(pos.x, DIMENSIONES_SALA.alto / 2, pos.z);
+        objetosColision.push({ tipo: 'columna', x: pos.x, z: pos.z, radio: 0.5 });
         escena.add(columna);
     });
 }
@@ -491,7 +515,7 @@ function crearModelos3DDesdeConfig() {
         },
         {
             path: 'assets/models/modern_bench_1/scene.gltf',
-            position: { x: 15, y: 0, z: 0 },
+            position: { x: 17, y: 0, z: 0 },
             scale: { x: 2.0, y: 2.0, z: 2.0 },
             rotation: { x: 0, y: Math.PI, z: 0 }
         },
@@ -514,6 +538,51 @@ function crearModelos3DDesdeConfig() {
             scale: { x: 0.5, y: 0.5, z: 0.5 },
             rotation: { x: 0, y: Math.PI / 2, z: 0 },
             
+        },
+// En la configuración de modelos, actualiza la ruta de la puerta:
+        {
+            path: 'assets/models/old_wooden_door_gltf/scene.gltf', // ← Cambiado aquí también
+            position: { x: 8.8, y: 0, z: -5 },
+            scale: { x: 1.5, y: 1.25, z: 1.5 },
+            rotation: { x: 0, y: -Math.PI/4, z: 0 },
+            tipo: 'puerta',
+            propiedadesPuerta: {
+                tiempoCierre: 4000,
+                gradoApertura: Math.PI / 2
+            }
+        },
+        {
+            path: 'assets/models/old_wooden_door_gltf/scene.gltf', // ← Cambiado aquí también
+            position: { x: 8.8, y: 0, z: 5 },
+            scale: { x: 1.5, y: 1.25, z: 1.5 },
+            rotation: { x: 0, y: Math.PI/4, z: 0 },
+            tipo: 'puerta',
+            propiedadesPuerta: {
+                tiempoCierre: 4000,
+                gradoApertura: Math.PI / 2
+            }
+        },
+        {
+            path: 'assets/models/old_wooden_door_gltf/scene.gltf', // ← Cambiado aquí también
+            position: { x: -16.2, y: 0, z: 5 },
+            scale: { x: 1.5, y: 1.25, z: 1.5 },
+            rotation: { x: 0, y: Math.PI/4, z: 0 },
+            tipo: 'puerta',
+            propiedadesPuerta: {
+                tiempoCierre: 4000,
+                gradoApertura: Math.PI / 2
+            }
+        },
+        {
+            path: 'assets/models/old_wooden_door_gltf/scene.gltf', // ← Cambiado aquí también
+            position: { x: -16.2, y: 0, z: -5 },
+            scale: { x: 1.5, y: 1.25, z: 1.5 },
+            rotation: { x: 0, y: -Math.PI/4, z: 0 },
+            tipo: 'puerta',
+            propiedadesPuerta: {
+                tiempoCierre: 4000,
+                gradoApertura: Math.PI / 2
+            }
         }
         // Puedes agregar más modelos aquí
         // {
@@ -558,7 +627,6 @@ function crearModelos3DDesdeConfig() {
                         modelo: baseMesh
                     });
                 }
-
                 escena.add(modelo);
 
                 // Registrar el modelo para colisiones (se recalcula el bounding box en cada verificación)
@@ -566,6 +634,48 @@ function crearModelos3DDesdeConfig() {
                     tipo: 'modelo3d',
                     modelo: modelo
                 });
+
+                // Si es una puerta, darle propiedades y registrar
+                if (cfg.tipo === 'puerta') {
+                    descomponerMatrices(modelo);
+
+                    // 1. Calcular bounding box del modelo
+                    const box = new THREE.Box3().setFromObject(modelo);
+                    const size = new THREE.Vector3();
+                    box.getSize(size);
+
+                    // 2. Calcular el desplazamiento para que la base esté en (0,0,0)
+                    const offset = new THREE.Vector3(
+                        -(box.min.x + size.x / 2), // Centrar en X
+                        -box.min.y,                // Llevar base a Y=0
+                        -(box.min.z + size.z / 2)  // Centrar en Z
+                    );
+
+                    // 3. Crear un grupo y agregar el modelo desplazado
+                    const group = new THREE.Group();
+                    modelo.position.add(offset); // Mueve el modelo internamente
+                    group.add(modelo);
+
+                    // 4. Ahora aplica la posición, escala y rotación al grupo
+                    group.scale.set(cfg.scale.x, cfg.scale.y, cfg.scale.z);
+                    group.position.set(cfg.position.x, cfg.position.y, cfg.position.z);
+                    group.rotation.set(cfg.rotation.x, cfg.rotation.y, cfg.rotation.z);
+
+                    group.userData.estado = 'cerrada';
+                    group.userData.tiempoCierre = cfg.propiedadesPuerta.tiempoCierre || 4000;
+                    group.userData.animando = false;
+                    group.userData.gradoApertura = cfg.propiedadesPuerta.gradoApertura || Math.PI / 2;
+
+                    puertasInteractuables.push(group);
+                    objetosColision.push({
+                        tipo: 'pared',
+                        modelo: group
+                    });
+                    escena.add(group);
+
+                    console.log('Puerta interactuable cargadaaaa:', group);
+                    ;
+                }
 
                 // Debug: mostrar bounding box en consola
                 const box = new THREE.Box3().setFromObject(modelo);
@@ -576,6 +686,48 @@ function crearModelos3DDesdeConfig() {
                 console.error('Error cargando modelo:', cfg.path, error);
             }
         );
+    });
+}
+
+function descomponerMatrices(obj) {
+    obj.traverse(child => {
+        if (child.matrix && !child.matrixAutoUpdate) {
+            child.matrix.decompose(child.position, child.quaternion, child.scale);
+            child.matrixAutoUpdate = true;
+        }
+    });
+}
+
+function alternarPuertaOldWooden(puerta) {
+    if (puerta.userData.animando) return;
+
+    // Buscar el nodo de la puerta (SM_door_68)
+    let nodoPuerta = null;
+    puerta.traverse(child => {
+        if (child.name === "SM_door_68") {
+            nodoPuerta = child;
+        }
+    });
+
+    if (!nodoPuerta) {
+        console.warn("No se encontró el nodo de la puerta para animar");
+        return;
+    }
+
+    puerta.userData.animando = true;
+    const abierta = puerta.userData.estado === "abierta";
+    const rotInicial = nodoPuerta.rotation.y;
+    const rotFinal = abierta ? 0 : -Math.PI / 2; // Abrir -90 grados en Y
+
+    // Animar apertura/cierre
+    gsap.to(nodoPuerta.rotation, {
+        y: rotFinal,
+        duration: 1,
+        ease: "power2.inOut",
+        onComplete: () => {
+            puerta.userData.estado = abierta ? "cerrada" : "abierta";
+            puerta.userData.animando = false;
+        }
     });
 }
 
@@ -738,7 +890,7 @@ function crearObrasConTexturas() {
     // Evento para mostrar descripción al hacer clic
     window.addEventListener('click', function (event) {
         if (document.pointerLockElement !== document.body) return;
-
+        console.log('🔫 Click detectado en posición:', event.clientX, event.clientY);
         // Raycaster para detectar objetos bajo el mouse
         const mouse = new THREE.Vector2(
             (event.clientX / window.innerWidth) * 2 - 1,
@@ -747,13 +899,43 @@ function crearObrasConTexturas() {
         const raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(mouse, camara);
 
-        const intersects = raycaster.intersectObjects(pinturasInteract);
-        if (intersects.length > 0) {
-            const pintura = intersects[0].object;
+        // Detectar pinturas
+        const intersectPinturas = raycaster.intersectObjects(pinturasInteract, true);
+        if (intersectPinturas.length > 0) {
+            const pintura = intersectPinturas[0].object;
             mostrarDescripcionPintura(pintura.userData.descripcion);
+            return; // no procesar puertas si se hizo clic en una pintura
+        }
+
+        // Detectar puertas - MEJORADO para buscar en toda la jerarquía
+        let puertaClickeada = null;
+        for (const puerta of puertasInteractuables) {
+            const intersecciones = raycaster.intersectObject(puerta, true);
+            if (intersecciones.length > 0) {
+                // Buscar el grupo padre (puerta) en la jerarquía
+                let obj = intersecciones[0].object;
+                while (obj && obj !== puerta) {
+                    obj = obj.parent;
+                }
+                if (obj === puerta) {
+                    puertaClickeada = puerta;
+                    console.log('🎯 Puerta intersectada:', puerta);
+                    break;
+                }
+            }
+        }
+
+        if (puertaClickeada) {
+            console.log('🚪 Clic en puerta detectado, estado actual:', puertaClickeada.userData.estado);
+            alternarPuertaOldWooden(puertaClickeada);
+        } else {
+            console.log('❌ No se intersectó ninguna puerta');
         }
     });
+
 }
+
+// ========================
 
 // Muestra la descripción en pantalla
 function mostrarDescripcionPintura(descripcion) {
@@ -965,6 +1147,14 @@ function verificarColisiones(nuevaPosicion) {
                         return false;
                     }
                 }
+            }
+        }
+        if (obj.tipo === 'columna') {
+            const dx = nuevaPosicion.x - obj.x;
+            const dz = nuevaPosicion.z - obj.z;
+            const distancia = Math.sqrt(dx * dx + dz * dz);
+            if (distancia < (obj.radio || 0.5) + margen) {
+                return false;
             }
         }
         // Colisión con modelos 3D
