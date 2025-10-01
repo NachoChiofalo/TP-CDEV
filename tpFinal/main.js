@@ -850,19 +850,19 @@ function crearObrasConTexturas() {
             descripcion: "Los Girasoles - Vincent van Gogh (1888)\n\nVan Gogh pintó una serie de cuadros de girasoles, siendo esta una de las versiones más conocidas. Creada en Arlés durante uno de sus períodos más productivos, la obra muestra su característico uso vibrante del color amarillo y pinceladas expresivas. Para Van Gogh, los girasoles simbolizaban gratitud. Existen varias versiones de esta obra en diferentes museos alrededor del mundo, testimonio de la fascinación del artista con este tema."
         },
         {
-            textura: "assets/texturas/van_gogh_autorretrato.webp",
+            textura: "assets/texturas/cristianMac-Crepusculo.png",
             posicion: [0, 2.5, 19.4],
-            descripcion: "Autorretrato - Vincent van Gogh (1889)\n\nVan Gogh pintó más de 30 autorretratos durante su vida, siendo esta una de sus obras más introspectivas. Con pinceladas arremolinadas y colores intensos, el artista se representa con una mirada penetrante que refleja tanto su determinación artística como su lucha interior. Los autorretratos de Van Gogh son documentos psicológicos invaluables que revelan su evolución personal y artística durante sus turbulentos últimos años."
+            descripcion: "Crepúsculo - Cristian Mac (2024)\n\nUna obra contemporánea que captura la transición efímera entre el día y la noche. Mac utiliza una paleta de colores cálidos y fríos en equilibrio perfecto para representar ese momento mágico donde la luz solar se desvanece y da paso a la oscuridad. La composición invita al espectador a reflexionar sobre los ciclos naturales y el paso inevitable del tiempo. Esta pieza forma parte de la serie 'Momentos Fugaces' del artista, donde explora la belleza de los instantes transitorios que a menudo pasan desapercibidos en la vida cotidiana."
         },
         {
-            textura: "assets/texturas/el_nacimiento_venus.webp",
+            textura: "assets/texturas/cristianMac-Ojo.png",
             posicion: [8, 2.5, 19.4],
-            descripcion: "El Nacimiento de Venus - Sandro Botticelli (1485)\n\nEsta obra icónica del Renacimiento temprano representa a la diosa Venus emergiendo del mar sobre una concha, empujada por los vientos Céfiro y Aura hacia la costa donde la espera una de las Horas. La composición elegante y la belleza idealizada de Venus ejemplifican los ideales renacentistas de armonía y proporción. La pintura se encuentra en la Galería Uffizi de Florencia y es una de las obras más célebres del Renacimiento italiano."
+            descripcion: "Ojo - Cristian Mac (2024)\n\nUna exploración íntima de la mirada humana como ventana al alma. Mac deconstruye el concepto tradicional del retrato para enfocarse únicamente en el órgano de la percepción, creando una obra que es simultáneamente observadora y observada. El detallismo técnico se combina con elementos abstractos que rodean el ojo, sugiriendo las capas de conciencia y subconsciencia que subyacen en cada mirada. Esta obra invita al espectador a confrontar su propia forma de ver y ser visto, cuestionando la naturaleza de la observación artística."
         },
         {
-            textura: "assets/texturas/mona_lisa_new.webp",
+            textura: "assets/texturas/cristianMac-Simetria.png",
             posicion: [16, 2.5, 19.4],
-            descripcion: "La Mona Lisa - Leonardo da Vinci (1503-1519)\n\nLa pintura más famosa del mundo. Este retrato de Lisa Gherardini, esposa de un comerciante florentino, es célebre por la enigmática sonrisa de la retratada y la revolucionaria técnica del sfumato utilizada por Leonardo. La obra tardó años en completarse y Leonardo la llevó consigo a Francia. Actualmente es la joya de la corona del Museo del Louvre en París, donde atrae millones de visitantes cada año."
+            descripcion: "Simetría - Cristian Mac (2024)\n\nUna meditación visual sobre el equilibrio y la armonía en la composición. Mac explora los principios matemáticos y estéticos de la simetría, creando una obra que dialoga entre el orden y el caos, lo predecible y lo sorprendente. La repetición de formas y patrones genera un ritmo visual hipnótico que atrae la mirada del espectador hacia el centro de la composición. Esta pieza representa la búsqueda del artista por encontrar belleza en la estructura y el orden, mientras mantiene espacio para la interpretación personal y la experiencia subjetiva del observador."
         },
         {
             textura: "assets/texturas/van_gogh_autorretrato.webp",
