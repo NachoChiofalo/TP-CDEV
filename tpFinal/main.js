@@ -810,9 +810,9 @@ function crearObrasConTexturas() {
             descripcion: "La Creación de Adán - Miguel Ángel (1512)\n\nUna de las escenas más icónicas del techo de la Capilla Sixtina. Esta obra maestra del Renacimiento representa el momento bíblico en que Dios da vida a Adán. El casi-contacto entre los dedos de Dios y Adán se ha convertido en una de las imágenes más reproducidas de la historia del arte. Miguel Ángel pintó esta y otras escenas en el techo entre 1508 y 1512, trabajando en condiciones extremadamente difíciles sobre andamios a gran altura."
         },
         {
-            textura: "assets/texturas/cuadro_extra6.webp",
+            textura: "assets/texturas/dormitorio_en_arles.webp",
             posicion: [0, 2.5, -4.9],
-            descripcion: "Obra de arte contemporánea"
+            descripcion: "El Dormitorio en Arlés - Vincent van Gogh (1888)\n\nVan Gogh pintó esta obra durante su estancia en la Casa Amarilla de Arlés, representando su propio dormitorio. Los colores vibrantes y la perspectiva ligeramente distorsionada crean una sensación de calidez e intimidad. Para Van Gogh, esta pintura simbolizaba descanso y tranquilidad. El artista estaba tan orgulloso de esta obra que realizó tres versiones, actualmente en diferentes museos. Las paredes azul lavanda contrastan bellamente con el suelo rojo y la cama amarilla."
         },
         {
             textura: "assets/texturas/las_meninas.webp",
@@ -825,9 +825,9 @@ function crearObrasConTexturas() {
             descripcion: "La Noche Estrellada - Vincent van Gogh (1889)\n\nPintada durante la estancia de Van Gogh en el asilo de Saint-Rémy-de-Provence, esta obra muestra una vista nocturna desde su ventana con un ciprés en primer plano y un pueblo al fondo. El cielo arremolinado con estrellas brillantes y una luna creciente refleja tanto la turbulencia emocional del artista como su genio creativo. Actualmente se exhibe en el MoMA de Nueva York y es una de las pinturas más reconocidas del mundo."
         },
         {
-            textura: "assets/texturas/cuadro_extra4.webp",
+            textura: "assets/texturas/la_columna_rota.webp",
             posicion: [0, 2.5, 4.9],
-            descripcion: "Obra de arte contemporánea"
+            descripcion: "La Columna Rota - Frida Kahlo (1944)\n\nUna de las obras más desgarradoras de Frida Kahlo, pintada después de una cirugía de columna. La artista se representa con su torso abierto mostrando una columna jónica rota en lugar de su propia columna vertebral, clavos penetrando su cuerpo, y lágrimas corriendo por su rostro imperturbable. El paisaje árido y agrietado del fondo refleja su dolor físico y emocional. Esta obra es un testimonio del sufrimiento que Kahlo padeció tras su accidente de tranvía y sus múltiples cirugías."
         },
         {
             textura: "assets/texturas/girl_pearl_earring.webp",
