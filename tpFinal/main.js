@@ -803,26 +803,97 @@ function crearObrasConTexturas() {
     console.log('Cargando obras de arte...');
 
     // Datos de las pinturas
-    const lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, urna eu tincidunt consectetur, nisi nisl aliquam enim, nec dictum nisi nisl euismod nisi. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Etiam at risus et justo dignissim congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet. Nunc eu ullamcorper orci. Quisque eget odio ac lectus vestibulum faucibus eget in metus. In pellentesque faucibus vestibulum. Nulla at nulla justo, eget luctus tortor. Nulla facilisi. Duis aliquet egestas purus in blandit. Curabitur vulputate, ligula lacinia scelerisque tempor, lacus lacus ornare ante, ac egestas est urna sit amet arcu. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.";
     const pinturasData = [
-        { textura: "assets/texturas/capilla_sixtina.webp", posicion: [15, 2.5, -4.9], descripcion: lorem },
-        { textura: "assets/texturas/cuadro_extra6.webp", posicion: [0, 2.5, -4.9], descripcion: lorem },
-        { textura: "assets/texturas/las_meninas.webp", posicion: [-8, 2.5, -4.9], descripcion: lorem },
-        { textura: "assets/texturas/noche_estrellada.webp", posicion: [-8, 2.5, 4.9], descripcion: lorem },
-        { textura: "assets/texturas/cuadro_extra4.webp", posicion: [0, 2.5, 4.9], descripcion: lorem },
-        { textura: "assets/texturas/girl_pearl_earring.webp", posicion: [15, 2.5, 4.9], descripcion: lorem },
-        { textura: "assets/texturas/mona_lisa.webp", posicion: [0, 2.5, -19.4], descripcion: lorem },
-        { textura: "assets/texturas/guernica.webp", posicion: [8, 2.5, -19.4], descripcion: lorem },
-        { textura: "assets/texturas/van_gogh_girasoles.webp", posicion: [16, 2.5, -19.4], descripcion: lorem },
-        { textura: "assets/texturas/van_gogh_autorretrato.webp", posicion: [0, 2.5, 19.4], descripcion: lorem },
-        { textura: "assets/texturas/el_nacimiento_venus.webp", posicion: [8, 2.5, 19.4], descripcion: lorem },
-        { textura: "assets/texturas/mona_lisa_new.webp", posicion: [16, 2.5, 19.4], descripcion: lorem },
-        { textura: "assets/texturas/van_gogh_autorretrato.webp", posicion: [-12, 2.5, 19.4], descripcion: lorem },
-        { textura: "assets/texturas/el_nacimiento_venus.webp", posicion: [-17, 2.5, 19.4], descripcion: lorem },
-        { textura: "assets/texturas/mona_lisa_new.webp", posicion: [-23, 2.5, 19.4], descripcion: lorem },
-        { textura: "assets/texturas/van_gogh_autorretrato.webp", posicion: [-12, 2.5, -19.4], descripcion: lorem },
-        { textura: "assets/texturas/el_nacimiento_venus.webp", posicion: [-17, 2.5, -19.4], descripcion: lorem },
-        { textura: "assets/texturas/mona_lisa_new.webp", posicion: [-23, 2.5, -19.4], descripcion: lorem }
+        {
+            textura: "assets/texturas/capilla_sixtina.webp",
+            posicion: [15, 2.5, -4.9],
+            descripcion: "La Creación de Adán - Miguel Ángel (1512)\n\nUna de las escenas más icónicas del techo de la Capilla Sixtina. Esta obra maestra del Renacimiento representa el momento bíblico en que Dios da vida a Adán. El casi-contacto entre los dedos de Dios y Adán se ha convertido en una de las imágenes más reproducidas de la historia del arte. Miguel Ángel pintó esta y otras escenas en el techo entre 1508 y 1512, trabajando en condiciones extremadamente difíciles sobre andamios a gran altura."
+        },
+        {
+            textura: "assets/texturas/cuadro_extra6.webp",
+            posicion: [0, 2.5, -4.9],
+            descripcion: "Obra de arte contemporánea"
+        },
+        {
+            textura: "assets/texturas/las_meninas.webp",
+            posicion: [-8, 2.5, -4.9],
+            descripcion: "Las Meninas - Diego Velázquez (1656)\n\nConsiderada una de las pinturas más importantes de la historia del arte occidental. Esta compleja obra muestra a la infanta Margarita rodeada de sus damas de compañía (meninas), otros miembros de la corte y el propio Velázquez pintando. El juego de perspectivas y espejos ha fascinado a críticos durante siglos. La obra se encuentra en el Museo del Prado en Madrid y es un ejemplo supremo del Barroco español."
+        },
+        {
+            textura: "assets/texturas/noche_estrellada.webp",
+            posicion: [-8, 2.5, 4.9],
+            descripcion: "La Noche Estrellada - Vincent van Gogh (1889)\n\nPintada durante la estancia de Van Gogh en el asilo de Saint-Rémy-de-Provence, esta obra muestra una vista nocturna desde su ventana con un ciprés en primer plano y un pueblo al fondo. El cielo arremolinado con estrellas brillantes y una luna creciente refleja tanto la turbulencia emocional del artista como su genio creativo. Actualmente se exhibe en el MoMA de Nueva York y es una de las pinturas más reconocidas del mundo."
+        },
+        {
+            textura: "assets/texturas/cuadro_extra4.webp",
+            posicion: [0, 2.5, 4.9],
+            descripcion: "Obra de arte contemporánea"
+        },
+        {
+            textura: "assets/texturas/girl_pearl_earring.webp",
+            posicion: [15, 2.5, 4.9],
+            descripcion: "La Joven de la Perla - Johannes Vermeer (1665)\n\nApodada la 'Mona Lisa del Norte', esta pintura captura a una joven con un turbante exótico y un gran pendiente de perla. La mirada directa de la joven y su expresión enigmática han cautivado al público durante siglos. Vermeer utilizó su característico dominio de la luz para crear profundidad y luminosidad. La obra se encuentra en la Mauritshuis de La Haya y representa el apogeo del arte barroco holandés."
+        },
+        {
+            textura: "assets/texturas/mona_lisa.webp",
+            posicion: [0, 2.5, -19.4],
+            descripcion: "La Mona Lisa - Leonardo da Vinci (1503-1519)\n\nLa pintura más famosa del mundo. Este retrato de Lisa Gherardini, esposa de un comerciante florentino, es célebre por la enigmática sonrisa de la retratada y la revolucionaria técnica del sfumato utilizada por Leonardo. La obra tardó años en completarse y Leonardo la llevó consigo a Francia. Actualmente es la joya de la corona del Museo del Louvre en París, donde atrae millones de visitantes cada año."
+        },
+        {
+            textura: "assets/texturas/guernica.webp",
+            posicion: [8, 2.5, -19.4],
+            descripcion: "Guernica - Pablo Picasso (1937)\n\nEsta monumental obra en blanco y negro fue creada en respuesta al bombardeo de la ciudad vasca de Guernica durante la Guerra Civil Española. Con sus figuras distorsionadas y expresiones de agonía, Picasso creó un poderoso alegato antibelicista que trasciende su contexto histórico específico. La pintura de 3.5 x 7.8 metros se exhibe en el Museo Reina Sofía de Madrid y es considerada una de las obras más influyentes del siglo XX."
+        },
+        {
+            textura: "assets/texturas/van_gogh_girasoles.webp",
+            posicion: [16, 2.5, -19.4],
+            descripcion: "Los Girasoles - Vincent van Gogh (1888)\n\nVan Gogh pintó una serie de cuadros de girasoles, siendo esta una de las versiones más conocidas. Creada en Arlés durante uno de sus períodos más productivos, la obra muestra su característico uso vibrante del color amarillo y pinceladas expresivas. Para Van Gogh, los girasoles simbolizaban gratitud. Existen varias versiones de esta obra en diferentes museos alrededor del mundo, testimonio de la fascinación del artista con este tema."
+        },
+        {
+            textura: "assets/texturas/van_gogh_autorretrato.webp",
+            posicion: [0, 2.5, 19.4],
+            descripcion: "Autorretrato - Vincent van Gogh (1889)\n\nVan Gogh pintó más de 30 autorretratos durante su vida, siendo esta una de sus obras más introspectivas. Con pinceladas arremolinadas y colores intensos, el artista se representa con una mirada penetrante que refleja tanto su determinación artística como su lucha interior. Los autorretratos de Van Gogh son documentos psicológicos invaluables que revelan su evolución personal y artística durante sus turbulentos últimos años."
+        },
+        {
+            textura: "assets/texturas/el_nacimiento_venus.webp",
+            posicion: [8, 2.5, 19.4],
+            descripcion: "El Nacimiento de Venus - Sandro Botticelli (1485)\n\nEsta obra icónica del Renacimiento temprano representa a la diosa Venus emergiendo del mar sobre una concha, empujada por los vientos Céfiro y Aura hacia la costa donde la espera una de las Horas. La composición elegante y la belleza idealizada de Venus ejemplifican los ideales renacentistas de armonía y proporción. La pintura se encuentra en la Galería Uffizi de Florencia y es una de las obras más célebres del Renacimiento italiano."
+        },
+        {
+            textura: "assets/texturas/mona_lisa_new.webp",
+            posicion: [16, 2.5, 19.4],
+            descripcion: "La Mona Lisa - Leonardo da Vinci (1503-1519)\n\nLa pintura más famosa del mundo. Este retrato de Lisa Gherardini, esposa de un comerciante florentino, es célebre por la enigmática sonrisa de la retratada y la revolucionaria técnica del sfumato utilizada por Leonardo. La obra tardó años en completarse y Leonardo la llevó consigo a Francia. Actualmente es la joya de la corona del Museo del Louvre en París, donde atrae millones de visitantes cada año."
+        },
+        {
+            textura: "assets/texturas/van_gogh_autorretrato.webp",
+            posicion: [-12, 2.5, 19.4],
+            descripcion: "Autorretrato - Vincent van Gogh (1889)\n\nVan Gogh pintó más de 30 autorretratos durante su vida, siendo esta una de sus obras más introspectivas. Con pinceladas arremolinadas y colores intensos, el artista se representa con una mirada penetrante que refleja tanto su determinación artística como su lucha interior. Los autorretratos de Van Gogh son documentos psicológicos invaluables que revelan su evolución personal y artística durante sus turbulentos últimos años."
+        },
+        {
+            textura: "assets/texturas/el_nacimiento_venus.webp",
+            posicion: [-17, 2.5, 19.4],
+            descripcion: "El Nacimiento de Venus - Sandro Botticelli (1485)\n\nEsta obra icónica del Renacimiento temprano representa a la diosa Venus emergiendo del mar sobre una concha, empujada por los vientos Céfiro y Aura hacia la costa donde la espera una de las Horas. La composición elegante y la belleza idealizada de Venus ejemplifican los ideales renacentistas de armonía y proporción. La pintura se encuentra en la Galería Uffizi de Florencia y es una de las obras más célebres del Renacimiento italiano."
+        },
+        {
+            textura: "assets/texturas/mona_lisa_new.webp",
+            posicion: [-23, 2.5, 19.4],
+            descripcion: "La Mona Lisa - Leonardo da Vinci (1503-1519)\n\nLa pintura más famosa del mundo. Este retrato de Lisa Gherardini, esposa de un comerciante florentino, es célebre por la enigmática sonrisa de la retratada y la revolucionaria técnica del sfumato utilizada por Leonardo. La obra tardó años en completarse y Leonardo la llevó consigo a Francia. Actualmente es la joya de la corona del Museo del Louvre en París, donde atrae millones de visitantes cada año."
+        },
+        {
+            textura: "assets/texturas/van_gogh_autorretrato.webp",
+            posicion: [-12, 2.5, -19.4],
+            descripcion: "Autorretrato - Vincent van Gogh (1889)\n\nVan Gogh pintó más de 30 autorretratos durante su vida, siendo esta una de sus obras más introspectivas. Con pinceladas arremolinadas y colores intensos, el artista se representa con una mirada penetrante que refleja tanto su determinación artística como su lucha interior. Los autorretratos de Van Gogh son documentos psicológicos invaluables que revelan su evolución personal y artística durante sus turbulentos últimos años."
+        },
+        {
+            textura: "assets/texturas/el_nacimiento_venus.webp",
+            posicion: [-17, 2.5, -19.4],
+            descripcion: "El Nacimiento de Venus - Sandro Botticelli (1485)\n\nEsta obra icónica del Renacimiento temprano representa a la diosa Venus emergiendo del mar sobre una concha, empujada por los vientos Céfiro y Aura hacia la costa donde la espera una de las Horas. La composición elegante y la belleza idealizada de Venus ejemplifican los ideales renacentistas de armonía y proporción. La pintura se encuentra en la Galería Uffizi de Florencia y es una de las obras más célebres del Renacimiento italiano."
+        },
+        {
+            textura: "assets/texturas/mona_lisa_new.webp",
+            posicion: [-23, 2.5, -19.4],
+            descripcion: "La Mona Lisa - Leonardo da Vinci (1503-1519)\n\nLa pintura más famosa del mundo. Este retrato de Lisa Gherardini, esposa de un comerciante florentino, es célebre por la enigmática sonrisa de la retratada y la revolucionaria técnica del sfumato utilizada por Leonardo. La obra tardó años en completarse y Leonardo la llevó consigo a Francia. Actualmente es la joya de la corona del Museo del Louvre en París, donde atrae millones de visitantes cada año."
+        }
     ];
 
     pinturasData.forEach(data => {
