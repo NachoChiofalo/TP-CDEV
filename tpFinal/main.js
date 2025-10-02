@@ -865,17 +865,17 @@ function crearObrasConTexturas() {
             descripcion: "Simetría - Cristian Mac (2024)\n\nUna meditación visual sobre el equilibrio y la armonía en la composición. Mac explora los principios matemáticos y estéticos de la simetría, creando una obra que dialoga entre el orden y el caos, lo predecible y lo sorprendente. La repetición de formas y patrones genera un ritmo visual hipnótico que atrae la mirada del espectador hacia el centro de la composición. Esta pieza representa la búsqueda del artista por encontrar belleza en la estructura y el orden, mientras mantiene espacio para la interpretación personal y la experiencia subjetiva del observador."
         },
         {
-            textura: "assets/texturas/van_gogh_autorretrato.webp",
+            textura: "assets/texturas/Maradona.JPG",
             posicion: [-12, 2.5, 19.4],
             descripcion: "Autorretrato - Vincent van Gogh (1889)\n\nVan Gogh pintó más de 30 autorretratos durante su vida, siendo esta una de sus obras más introspectivas. Con pinceladas arremolinadas y colores intensos, el artista se representa con una mirada penetrante que refleja tanto su determinación artística como su lucha interior. Los autorretratos de Van Gogh son documentos psicológicos invaluables que revelan su evolución personal y artística durante sus turbulentos últimos años."
         },
         {
-            textura: "assets/texturas/el_nacimiento_venus.webp",
+            textura: "assets/texturas/messi.jpg",
             posicion: [-17, 2.5, 19.4],
             descripcion: "El Nacimiento de Venus - Sandro Botticelli (1485)\n\nEsta obra icónica del Renacimiento temprano representa a la diosa Venus emergiendo del mar sobre una concha, empujada por los vientos Céfiro y Aura hacia la costa donde la espera una de las Horas. La composición elegante y la belleza idealizada de Venus ejemplifican los ideales renacentistas de armonía y proporción. La pintura se encuentra en la Galería Uffizi de Florencia y es una de las obras más célebres del Renacimiento italiano."
         },
         {
-            textura: "assets/texturas/mona_lisa_new.webp",
+            textura: "assets/texturas/kempes.jpg",
             posicion: [-23, 2.5, 19.4],
             descripcion: "La Mona Lisa - Leonardo da Vinci (1503-1519)\n\nLa pintura más famosa del mundo. Este retrato de Lisa Gherardini, esposa de un comerciante florentino, es célebre por la enigmática sonrisa de la retratada y la revolucionaria técnica del sfumato utilizada por Leonardo. La obra tardó años en completarse y Leonardo la llevó consigo a Francia. Actualmente es la joya de la corona del Museo del Louvre en París, donde atrae millones de visitantes cada año."
         },
@@ -1390,7 +1390,7 @@ const habitacionesMusica = [
     {
         nombre: 'Cuadrado 3',
         xMin: -30, xMax: -5, zMin: 5, zMax: 20,
-        audio: 'assets/audio/room3.mp3'
+        audio: 'assets/audio/lamanodedios.mp3'
     },
     {
         nombre: 'Cuadrado 4',
