@@ -17,6 +17,7 @@ let escena, camara, renderizador;
 let reloj;
 let objetosColision = [];
 let cargadorTexturas;
+let mixer; // Para animaciones
 
 // Personas caminando
 let personas = [];
@@ -132,7 +133,7 @@ function inicializar() {
         crearCamara();
         crearRenderizador();
     // Crear modelos 3D desde array de configuración
-    crearModelos3DDesdeConfig();
+        crearModelos3DDesdeConfig();
         crearSalaUnica();
         crearIluminacion();
 
@@ -144,7 +145,7 @@ function inicializar() {
         crearPersonasCaminando();
 
     // Inicializar música ambiental por habitación
-    inicializarMusicaAmbiental();
+        inicializarMusicaAmbiental();
 
         // Música default se inicia solo al presionar el botón de entrar
 
@@ -152,10 +153,10 @@ function inicializar() {
 function crearPersonasCaminando() {
     // Cargar el modelo GLTF de persona simple low poly
     posicionesPersonas = [
-        [-1, 0, -2, -0.6],
-        [2, 0, -1, -1.43],
+        [-1, 0, -2, -3.44],
+        [2, 0, -1, -3],
         [-21, 0, 3, -2],
-        [13, 0, 2, 1.54]
+        [13, 0, 2, 0.4]
     ];
 
 
@@ -167,9 +168,8 @@ function crearPersonasCaminando() {
                 const person = gltf.scene.clone();
                 const [x, y, z, rotY] = posicionesPersonas[i];
                 person.position.set(x, y, z);
-                person.scale.set(1.3, 1.7, 1.3); // Ajusta el tamaño si es necesario (1:1 para low poly)
-                person.userData.direccion = rotY ; // Convertir a radianes
-                person.userData.velocidad = 0;
+                person.scale.set(1.3, 1.7, 1.3); // Ajusta el tamaño si es necesario (1:1 para low poly) // Convertir a radianes
+                person.rotation.y = rotY;
                 console.log('Dirección:', person.userData.direccion);
                 personas.push(person);
                 escena.add(person);
@@ -527,13 +527,13 @@ function crearModelos3DDesdeConfig() {
         },
         {
             path: 'assets/models/apple_ii_computer.glb',
-            position: { x: -3.9, y: 1, z: -9 },
-            scale: { x: 2.0, y: 2.0, z: 2.0 },
-            rotation: { x: 0, y: Math.PI / 2, z: 0 },
+            position: { x: -20, y: 1, z: -15 },
+            scale: { x: 3.0, y: 3.0, z: 3.0 },
+            rotation: { x: 0, y: 0, z: 0 },
             base: {
                 color: 0x222222,
                 // La base está debajo del modelo, así que la posición Y del modelo es la parte superior de la base
-                size: { x: 1, y: 1, z: 1.5 }
+                size: { x: 3, y: 1, z: 2 }
             }
         },
 
@@ -543,6 +543,14 @@ function crearModelos3DDesdeConfig() {
             position: { x: -23.7, y: 3, z: -0.5 },
             scale: { x: 0.5, y: 0.5, z: 0.5 },
             rotation: { x: 0, y: Math.PI / 2, z: 0 },
+            
+        },
+        {
+            path: 'assets/models/8_bit_dj/scene.gltf',
+            // La posición Y del modelo es la parte superior de la base
+            position: { x: -27.33, y: 0.6, z: -7 },
+            scale: { x: 0.009, y: 0.009, z: 0.009 },
+            rotation: { x: 0, y: Math.PI / 3, z: 0 },
             
         },
 // En la configuración de modelos, actualiza la ruta de la puerta:
@@ -589,6 +597,12 @@ function crearModelos3DDesdeConfig() {
                 tiempoCierre: 4000,
                 gradoApertura: Math.PI / 2
             }
+        },
+        {
+            path: 'assets/models/frank/scene.gltf', // ← Cambiado aquí también
+            position: { x: 14, y: 1.1, z: -13 },
+            scale: { x: 1.5, y: 1.5, z: 1.5 },
+            rotation: { x: 0, y: 0, z: 0 },
         }
         // Puedes agregar más modelos aquí
         // {
@@ -599,6 +613,28 @@ function crearModelos3DDesdeConfig() {
         //     base: { color: 0x888888, size: { x: 1.6, y: 0.3, z: 1.6 } }
         // },
     ];
+    const loader1 = new THREE.GLTFLoader();
+    clock = new THREE.Clock();
+    loader1.load('assets/models/dinobot/source/model.gltf', (gltf) => {
+        model = gltf.scene;
+        model.position.set(-8, 0, -9);
+        model.scale.set(1.6, 1.6, 1.6);
+        model.rotation.y = Math.PI/5;
+        escena.add(model);
+
+        // Animaciones
+        const animations = gltf.animations;
+        console.log("Animaciones:", animations);
+
+        // Crear mixer y reproducir una animación
+        mixer = new THREE.AnimationMixer(model);
+
+        // Selecciona una animación por nombre
+        const idleAnim = THREE.AnimationClip.findByName(animations, 'test');
+        const action = mixer.clipAction(idleAnim);
+        action.play();
+    });
+
 
     const loader = new THREE.GLTFLoader();
     modelosConfig.forEach(cfg => {
@@ -1313,7 +1349,17 @@ function verificarVictoria() {
     }
 }
 
+function animate() {
+    requestAnimationFrame(animate);
 
+    const delta = clock.getDelta();
+
+    if (mixer) {
+        mixer.update(delta);
+    }
+
+    renderer.render(scene, camera);
+}
 
 // ========================
 // BUCLE PRINCIPAL
@@ -1333,35 +1379,14 @@ function animar(tiempoActual) {
         debugPanel.actualizar(camara, tiempoTranscurrido);
     }
 
-    actualizarPersonasCaminando(tiempoDelta);
+    if (mixer) {
+        mixer.update(tiempoDelta);
+    }
 
     // Música ambiental por habitación
     actualizarMusicaAmbiental();
-// Animación de personas caminando
-function actualizarPersonasCaminando(tiempoDelta) {
-    const margen = 0.5;
-    for (let persona of personas) {
-        // Movimiento en la dirección actual
-        let dir = persona.userData.direccion;
-        let vel = persona.userData.velocidad;
-        let dx = Math.cos(dir) * vel * tiempoDelta;
-        let dz = Math.sin(dir) * vel * tiempoDelta;
-        let nuevaPos = persona.position.clone();
-        nuevaPos.x += dx;
-        nuevaPos.z += dz;
 
-        // Verificar colisiones y límites
-        if (verificarColisiones(nuevaPos)) {
-            persona.position.copy(nuevaPos);
-        } else {
-            // Cambiar dirección aleatoriamente al chocar
-            persona.userData.direccion = Math.random() * Math.PI * 2;
-        }
 
-    // Rotar para mirar hacia donde camina (de frente, no de costado)
-    persona.rotation.y = -dir + Math.PI / 2;
-    }
-}
 
     renderizador.render(escena, camara);
 }
