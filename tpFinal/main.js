@@ -150,21 +150,27 @@ function inicializar() {
 
 // PERSONAS CAMINANDO
 function crearPersonasCaminando() {
-    const { ancho, profundo } = DIMENSIONES_SALA;
     // Cargar el modelo GLTF de persona simple low poly
+    posicionesPersonas = [
+        [-1, 0, -2, -0.6],
+        [2, 0, -1, -1.43],
+        [-21, 0, 3, -2],
+        [13, 0, 2, 1.54]
+    ];
+
+
     const loader = new THREE.GLTFLoader();
-    for (let i = 0; i < 6; i++) {
-        let x = Math.random() * (ancho - 6) - (ancho / 2 - 3);
-        let z = Math.random() * (profundo - 6) - (profundo / 2 - 3);
-        let y = 0;
+    for (let i = 0; i < 4; i++) {
         loader.load(
             'assets/models/simple_low_poly_character/scene.gltf',
             function (gltf) {
                 const person = gltf.scene.clone();
+                const [x, y, z, rotY] = posicionesPersonas[i];
                 person.position.set(x, y, z);
-                person.scale.set(1.3, 1.3, 1.3); // Ajusta el tamaño si es necesario (1:1 para low poly)
-                person.userData.direccion = Math.random() * Math.PI * 2;
-                person.userData.velocidad = 1.2 + Math.random();
+                person.scale.set(1.3, 1.7, 1.3); // Ajusta el tamaño si es necesario (1:1 para low poly)
+                person.userData.direccion = rotY ; // Convertir a radianes
+                person.userData.velocidad = 0;
+                console.log('Dirección:', person.userData.direccion);
                 personas.push(person);
                 escena.add(person);
             },
@@ -240,7 +246,7 @@ function crearSalaUnica() {
     // Materiales
     const materialPared = new THREE.MeshLambertMaterial({ map: texturaPared, side: THREE.DoubleSide });
     const materialSuelo = new THREE.MeshLambertMaterial({ map: texturaSuelo });
-    const materialTecho = new THREE.MeshLambertMaterial({ color: 0xfafafa });
+    const materialTecho = new THREE.MeshLambertMaterial({ color: 0x574030 });
 
     // CUADRADO
 
@@ -441,11 +447,11 @@ function crearSalaUnica() {
 
     // Columnas decorativas
     crearColumnasDecorativas();
-
+    cargarLogoUTN();
 }
 
 function crearColumnasDecorativas() {
-    const materialColumna = new THREE.MeshLambertMaterial({ color: 0xd4af37 });
+    const materialColumna = new THREE.MeshLambertMaterial({ color: 0x734E31 });
     const geometriaColumna = new THREE.CylinderGeometry(0.5, 0.5, DIMENSIONES_SALA.alto, 16);
 
     // Crear columnas en las esquinas
@@ -789,8 +795,21 @@ function cargarModelo3DBench() {
         }
     );
 }
+// cargar logo utn
+function cargarLogoUTN() {
+    const textura = new THREE.TextureLoader().load("assets/texturas/UTN_logo.jpg");
+    const material = new THREE.MeshBasicMaterial({ map: textura });
+    const geometria = new THREE.PlaneGeometry(4.0, 3.0);
+    const pintura = new THREE.Mesh(geometria, material);
+    pintura.position.set(20.53, 2.5, -15);
 
-
+    // Rotar si está en la pared sur
+    pintura.rotation.y = Math.PI / 2;
+    // Guardar referencia y descripción
+    pintura.userData.descripcion = "Logo de la Universidad Tecnológica Nacional";
+    pinturasInteract.push(pintura);
+    escena.add(pintura);
+}
 
 // Array global para almacenar las pinturas y sus descripciones
 let pinturasInteract = [];
@@ -823,11 +842,6 @@ function crearObrasConTexturas() {
             textura: "assets/texturas/noche_estrellada.webp",
             posicion: [-8, 2.5, 4.9],
             descripcion: "La Noche Estrellada - Vincent van Gogh (1889)\n\nPintada durante la estancia de Van Gogh en el asilo de Saint-Rémy-de-Provence, esta obra muestra una vista nocturna desde su ventana con un ciprés en primer plano y un pueblo al fondo. El cielo arremolinado con estrellas brillantes y una luna creciente refleja tanto la turbulencia emocional del artista como su genio creativo. Actualmente se exhibe en el MoMA de Nueva York y es una de las pinturas más reconocidas del mundo."
-        },
-        {
-            textura: "assets/texturas/la_columna_rota.webp",
-            posicion: [0, 2.5, 4.9],
-            descripcion: "La Columna Rota - Frida Kahlo (1944)\n\nUna de las obras más desgarradoras de Frida Kahlo, pintada después de una cirugía de columna. La artista se representa con su torso abierto mostrando una columna jónica rota en lugar de su propia columna vertebral, clavos penetrando su cuerpo, y lágrimas corriendo por su rostro imperturbable. El paisaje árido y agrietado del fondo refleja su dolor físico y emocional. Esta obra es un testimonio del sufrimiento que Kahlo padeció tras su accidente de tranvía y sus múltiples cirugías."
         },
         {
             textura: "assets/texturas/girl_pearl_earring.webp",
