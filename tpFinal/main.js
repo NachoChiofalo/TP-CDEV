@@ -1412,71 +1412,117 @@ if (document.readyState !== 'loading') {
 // MÚSICA AMBIENTAL POR HABITACIÓN
 // ========================
 let musicaActual = null;
+let narracionActual = null;
 let musicaDefault = null;
 let narracionInicial = null;
 let narracionReproducida = false;
+
 const habitacionesMusica = [
     {
         nombre: 'Cuadrado 1',
         xMin: -30, xMax: -5, zMin: -20, zMax: -5,
-        audio: 'assets/audio/room1.mp3'
+        audio: 'assets/audio/room1.mp3',
+        voz: 'assets/audio/narracion_room1.mp3',
+        vozReproducida: false
     },
     {
         nombre: 'Cuadrado 2',
         xMin: -4, xMax: 20, zMin: -20, zMax: -5,
-        audio: 'assets/audio/room2.mp3'
+        audio: 'assets/audio/room2.mp3',
+        voz: 'assets/audio/narracion_room2.mp3',
+        vozReproducida: false
     },
     {
         nombre: 'Cuadrado 3',
         xMin: -30, xMax: -5, zMin: 5, zMax: 20,
-        audio: 'assets/audio/lamanodedios.mp3'
+        audio: 'assets/audio/lamanodedios.mp3',
+        voz: 'assets/audio/narracion_lamanodedios.mp3',
+        vozReproducida: false
     },
     {
         nombre: 'Cuadrado 4',
         xMin: -4, xMax: 20, zMin: 5, zMax: 20,
-        audio: 'assets/audio/room4.mp3'
+        audio: 'assets/audio/room4.mp3',
+        voz: 'assets/audio/narracion_room4.mp3',
+        vozReproducida: false
     }
 ];
 
 function inicializarMusicaAmbiental() {
-    // Preload audios
     habitacionesMusica.forEach(hab => {
         hab.audioObj = new Audio(hab.audio);
         hab.audioObj.loop = true;
         hab.audioObj.volume = 0.1;
+
+        hab.vozObj = new Audio(hab.voz);
+        hab.vozObj.loop = false;
+        hab.vozObj.volume = 0.3;
     });
-    // Música para zonas fuera de habitaciones
+
     musicaDefault = new Audio('assets/audio/default.mp3');
     musicaDefault.loop = true;
     musicaDefault.volume = 0.1;
 
-    // Narración inicial (se reproduce solo una vez)
     narracionInicial = new Audio('assets/audio/narracion_galeria.mp3');
     narracionInicial.loop = false;
-    narracionInicial.volume = 0.3; // Más alto que la música (0.1)
+    narracionInicial.volume = 0.3;
 }
+
+let habitacionActual = null;
 
 function actualizarMusicaAmbiental() {
     const pos = camara.position;
-    let nuevaMusica = null;
+    let nuevaHabitacion = null;
+
+    // Detectar si está dentro de alguna habitación
     for (const hab of habitacionesMusica) {
         if (pos.x >= hab.xMin && pos.x <= hab.xMax && pos.z >= hab.zMin && pos.z <= hab.zMax) {
-            nuevaMusica = hab.audioObj;
+            nuevaHabitacion = hab;
             break;
         }
     }
-    // Si no está en ninguna habitación, usar música default
-    if (!nuevaMusica) {
-        nuevaMusica = musicaDefault;
-    }
-    if (nuevaMusica !== musicaActual) {
+
+    // Cambio de habitación detectado
+    if (nuevaHabitacion !== habitacionActual) {
+        // Detener música actual
         if (musicaActual) {
             musicaActual.pause();
             musicaActual.currentTime = 0;
         }
-        if (nuevaMusica) {
-            nuevaMusica.play();
+        // Detener narración actual si la hay
+        if (narracionActual) {
+            narracionActual.pause();
+            narracionActual.currentTime = 0;
+            narracionActual = null;
         }
-        musicaActual = nuevaMusica;
+
+        // Si entró a una nueva habitación
+        if (nuevaHabitacion) {
+            musicaActual = nuevaHabitacion.audioObj;
+            musicaActual.play();
+            narracionInicial.pause();
+
+            // Reproducir narración solo la primera vez
+            if (!nuevaHabitacion.vozReproducida) {
+                narracionActual = nuevaHabitacion.vozObj;
+                nuevaHabitacion.vozReproducida = true;
+
+                // Pausar música de la habitación mientras habla la narración
+                musicaActual.pause();
+                narracionActual.play();
+
+                narracionActual.onended = () => {
+                    musicaActual.play();
+                };
+            }
+
+        } else {
+            // Está fuera de todas las habitaciones → música default
+            musicaActual = musicaDefault;
+            musicaActual.play();
+
+        }
+
+        habitacionActual = nuevaHabitacion;
     }
 }
