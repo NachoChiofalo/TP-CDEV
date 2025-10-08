@@ -927,19 +927,19 @@ function crearObrasConTexturas() {
             textura: "assets/texturas/Maradona.JPG",
             posicion: [-12, 2.5, 19.4],
             rotation: Math.PI,
-            descripcion: "Autorretrato - Vincent van Gogh (1889)\n\nVan Gogh pintó más de 30 autorretratos durante su vida, siendo esta una de sus obras más introspectivas. Con pinceladas arremolinadas y colores intensos, el artista se representa con una mirada penetrante que refleja tanto su determinación artística como su lucha interior. Los autorretratos de Van Gogh son documentos psicológicos invaluables que revelan su evolución personal y artística durante sus turbulentos últimos años."
+            descripcion: "Diego Armando Maradona - Argentina (1986)\n\nFotografía icónica del capitán argentino alzando la Copa del Mundo en México 1986. Esta imagen simboliza el punto más alto de la carrera de Maradona y uno de los momentos más gloriosos del fútbol argentino. Con el trofeo en alto y la mirada llena de emoción, la fotografía captura la mezcla de genio, pasión y liderazgo que definieron su figura. Su legado trasciende el deporte: un símbolo cultural que marcó generaciones y unió a todo un país."
         },
         {
             textura: "assets/texturas/messi.jpg",
             posicion: [-17, 2.5, 19.4],
             rotation: Math.PI,
-            descripcion: "El Nacimiento de Venus - Sandro Botticelli (1485)\n\nEsta obra icónica del Renacimiento temprano representa a la diosa Venus emergiendo del mar sobre una concha, empujada por los vientos Céfiro y Aura hacia la costa donde la espera una de las Horas. La composición elegante y la belleza idealizada de Venus ejemplifican los ideales renacentistas de armonía y proporción. La pintura se encuentra en la Galería Uffizi de Florencia y es una de las obras más célebres del Renacimiento italiano."
+            descripcion: "Lionel Andrés Messi - Argentina (2006)\n\nFotografía tomada durante el Mundial de Alemania 2006, donde un joven Messi, con la camiseta número 18, celebraba uno de sus primeros goles con la Selección Argentina. Con el cabello largo y una expresión llena de ilusión, la imagen representa el inicio de una leyenda. Este momento marcó el comienzo de una carrera que transformaría el fútbol mundial, y simboliza la irrupción de un talento que, con humildad y determinación, llevaría a su país a lo más alto años después."
         },
         {
             textura: "assets/texturas/kempes.jpg",
             posicion: [-23, 2.5, 19.4],
             rotation: Math.PI,
-            descripcion: "La Mona Lisa - Leonardo da Vinci (1503-1519)\n\nLa pintura más famosa del mundo. Este retrato de Lisa Gherardini, esposa de un comerciante florentino, es célebre por la enigmática sonrisa de la retratada y la revolucionaria técnica del sfumato utilizada por Leonardo. La obra tardó años en completarse y Leonardo la llevó consigo a Francia. Actualmente es la joya de la corona del Museo del Louvre en París, donde atrae millones de visitantes cada año."
+            descripcion: "Mario Alberto Kempes - Argentina (1978)\n\nRetrato del goleador del Mundial de 1978, pieza central del primer título mundial de la Selección Argentina. Su melena característica y su expresión firme evocan la época dorada del fútbol setentista. Kempes fue héroe y emblema del esfuerzo nacional, con dos goles en la final y una carrera marcada por su potencia y humildad. La fotografía sintetiza la pasión de un pueblo y la figura del primer gran campeón argentino."
         },
         {
             textura: "assets/texturas/van_gogh_autorretrato.webp",
@@ -979,7 +979,7 @@ function crearObrasConTexturas() {
             posicion: [-4, 2.5, -9],
             rotation: Math.PI / 2,
             descripcion: "autoretrato - Michelangelo (1547-1555)\n\nEsta obra maestra de Michelangelo es un poderoso ejemplo de su habilidad para representar la figura humana en toda su complejidad emocional. El mart"
-        }
+        },
     ];
 
     
