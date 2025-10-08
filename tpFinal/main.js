@@ -215,12 +215,15 @@ function crearRenderizador() {
     console.log('Creando renderizador optimizado...');
     renderizador = new THREE.WebGLRenderer({
         canvas: document.querySelector("#miCanvas"),
-        antialias: true
+        antialias: true,
+        powerPreference: "high-performance", // Sugerir GPU de alto rendimiento
+        alpha: false 
     });
 
     renderizador.setSize(window.innerWidth, window.innerHeight);
     renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderizador.shadowMap.enabled = false;
+    renderizador.shadowMap.enabled = true;
+    renderizador.shadowMap.type = THREE.PCFSoftShadowMap; // Mejor calidad de sombras
     renderizador.outputEncoding = THREE.sRGBEncoding;
 }
 
@@ -497,6 +500,7 @@ function crearIluminacion() {
     luzFocal1.target.position.set(0, 0, 0);
     escena.add(luzFocal1);
     escena.add(luzFocal1.target);
+
 }
 
 
@@ -877,11 +881,13 @@ function crearObrasConTexturas() {
         {
             textura: "assets/texturas/noche_estrellada.webp",
             posicion: [-8, 2.5, 4.9],
+            rotation: Math.PI,
             descripcion: "La Noche Estrellada - Vincent van Gogh (1889)\n\nPintada durante la estancia de Van Gogh en el asilo de Saint-Rémy-de-Provence, esta obra muestra una vista nocturna desde su ventana con un ciprés en primer plano y un pueblo al fondo. El cielo arremolinado con estrellas brillantes y una luna creciente refleja tanto la turbulencia emocional del artista como su genio creativo. Actualmente se exhibe en el MoMA de Nueva York y es una de las pinturas más reconocidas del mundo."
         },
         {
             textura: "assets/texturas/girl_pearl_earring.webp",
             posicion: [15, 2.5, 4.9],
+            rotation: Math.PI,
             descripcion: "La Joven de la Perla - Johannes Vermeer (1665)\n\nApodada la 'Mona Lisa del Norte', esta pintura captura a una joven con un turbante exótico y un gran pendiente de perla. La mirada directa de la joven y su expresión enigmática han cautivado al público durante siglos. Vermeer utilizó su característico dominio de la luz para crear profundidad y luminosidad. La obra se encuentra en la Mauritshuis de La Haya y representa el apogeo del arte barroco holandés."
         },
         {
@@ -902,31 +908,37 @@ function crearObrasConTexturas() {
         {
             textura: "assets/texturas/cristianMac-Crepusculo.png",
             posicion: [0, 2.5, 19.4],
+            rotation: Math.PI,
             descripcion: "Crepúsculo - Cristian Mac (2024)\n\nUna obra contemporánea que captura la transición efímera entre el día y la noche. Mac utiliza una paleta de colores cálidos y fríos en equilibrio perfecto para representar ese momento mágico donde la luz solar se desvanece y da paso a la oscuridad. La composición invita al espectador a reflexionar sobre los ciclos naturales y el paso inevitable del tiempo. Esta pieza forma parte de la serie 'Momentos Fugaces' del artista, donde explora la belleza de los instantes transitorios que a menudo pasan desapercibidos en la vida cotidiana."
         },
         {
             textura: "assets/texturas/cristianMac-Ojo.png",
             posicion: [8, 2.5, 19.4],
+            rotation: Math.PI,
             descripcion: "Ojo - Cristian Mac (2024)\n\nUna exploración íntima de la mirada humana como ventana al alma. Mac deconstruye el concepto tradicional del retrato para enfocarse únicamente en el órgano de la percepción, creando una obra que es simultáneamente observadora y observada. El detallismo técnico se combina con elementos abstractos que rodean el ojo, sugiriendo las capas de conciencia y subconsciencia que subyacen en cada mirada. Esta obra invita al espectador a confrontar su propia forma de ver y ser visto, cuestionando la naturaleza de la observación artística."
         },
         {
             textura: "assets/texturas/cristianMac-Simetria.png",
             posicion: [16, 2.5, 19.4],
+            rotation: Math.PI,
             descripcion: "Simetría - Cristian Mac (2024)\n\nUna meditación visual sobre el equilibrio y la armonía en la composición. Mac explora los principios matemáticos y estéticos de la simetría, creando una obra que dialoga entre el orden y el caos, lo predecible y lo sorprendente. La repetición de formas y patrones genera un ritmo visual hipnótico que atrae la mirada del espectador hacia el centro de la composición. Esta pieza representa la búsqueda del artista por encontrar belleza en la estructura y el orden, mientras mantiene espacio para la interpretación personal y la experiencia subjetiva del observador."
         },
         {
             textura: "assets/texturas/Maradona.JPG",
             posicion: [-12, 2.5, 19.4],
+            rotation: Math.PI,
             descripcion: "Autorretrato - Vincent van Gogh (1889)\n\nVan Gogh pintó más de 30 autorretratos durante su vida, siendo esta una de sus obras más introspectivas. Con pinceladas arremolinadas y colores intensos, el artista se representa con una mirada penetrante que refleja tanto su determinación artística como su lucha interior. Los autorretratos de Van Gogh son documentos psicológicos invaluables que revelan su evolución personal y artística durante sus turbulentos últimos años."
         },
         {
             textura: "assets/texturas/messi.jpg",
             posicion: [-17, 2.5, 19.4],
+            rotation: Math.PI,
             descripcion: "El Nacimiento de Venus - Sandro Botticelli (1485)\n\nEsta obra icónica del Renacimiento temprano representa a la diosa Venus emergiendo del mar sobre una concha, empujada por los vientos Céfiro y Aura hacia la costa donde la espera una de las Horas. La composición elegante y la belleza idealizada de Venus ejemplifican los ideales renacentistas de armonía y proporción. La pintura se encuentra en la Galería Uffizi de Florencia y es una de las obras más célebres del Renacimiento italiano."
         },
         {
             textura: "assets/texturas/kempes.jpg",
             posicion: [-23, 2.5, 19.4],
+            rotation: Math.PI,
             descripcion: "La Mona Lisa - Leonardo da Vinci (1503-1519)\n\nLa pintura más famosa del mundo. Este retrato de Lisa Gherardini, esposa de un comerciante florentino, es célebre por la enigmática sonrisa de la retratada y la revolucionaria técnica del sfumato utilizada por Leonardo. La obra tardó años en completarse y Leonardo la llevó consigo a Francia. Actualmente es la joya de la corona del Museo del Louvre en París, donde atrae millones de visitantes cada año."
         },
         {
@@ -943,70 +955,93 @@ function crearObrasConTexturas() {
             textura: "assets/texturas/mona_lisa_new.webp",
             posicion: [-23, 2.5, -19.4],
             descripcion: "La Mona Lisa - Leonardo da Vinci (1503-1519)\n\nLa pintura más famosa del mundo. Este retrato de Lisa Gherardini, esposa de un comerciante florentino, es célebre por la enigmática sonrisa de la retratada y la revolucionaria técnica del sfumato utilizada por Leonardo. La obra tardó años en completarse y Leonardo la llevó consigo a Francia. Actualmente es la joya de la corona del Museo del Louvre en París, donde atrae millones de visitantes cada año."
+        },
+        {
+            textura: "assets/texturas/van_gogh_autorretrato_vendaje.webp",
+            posicion: [20.1, 2.5, -9],
+            rotation: -Math.PI / 2,
+            descripcion: "Autorretrato con Vendaje en la Oreja - Vincent van Gogh (1889)\n\nEste autorretrato fue pintado poco después del famoso incidente en el que Van Gogh se cortó parte de su oreja. La obra refleja la turbulencia emocional del artista, con pinceladas intensas y colores vibrantes que transmiten su estado mental agitado. Van Gogh se representa con un vendaje en la oreja y una expresión introspectiva, ofreciendo una visión cruda de su lucha personal. Actualmente se encuentra en el Museo Courtauld de Londres."
+        },
+        {
+            textura: "assets/texturas/van_gogh_doctor.webp",
+            posicion: [20.1, 2.5, -15.5],
+            rotation: -Math.PI / 2,
+            descripcion: "El Doctor Gachet - Vincent van Gogh (1890)\n\nEste retrato del Dr. Gachet, el médico que atendió a Van Gogh en sus últimos días, es una de las obras más emotivas del artista. La pintura captura la melancolía y la introspección del médico, reflejando la propia lucha de Van Gogh con la salud mental. La obra es un ejemplo del estilo postimpresionista de Van Gogh, con colores vibrantes y pinceladas expresivas. Actualmente se encuentra en una colección privada."
+        },
+        {
+            textura: "assets/texturas/Martyrdom_Michelangelo.webp",
+            posicion: [-4, 2.5, -15.5],
+            rotation: Math.PI / 2,
+            descripcion: "Martirio de San Pedro - Michelangelo (1547-1555)\n\nEsta obra maestra de Michelangelo es un poderoso ejemplo de su habilidad para representar la figura humana en toda su complejidad emocional. El martirio de San Pedro, crucificado boca abajo, es una representación conmovedora de la fe y el sacrificio. La escultura, realizada en mármol, captura la tensión y la dramatización características del Renacimiento. Actualmente se encuentra en la Basílica de San Pedro en el Vaticano."
+        },
+        {
+            textura: "assets/texturas/Michelangelo Paintings.webp",
+            posicion: [-4, 2.5, -9],
+            rotation: Math.PI / 2,
+            descripcion: "autoretrato - Michelangelo (1547-1555)\n\nEsta obra maestra de Michelangelo es un poderoso ejemplo de su habilidad para representar la figura humana en toda su complejidad emocional. El mart"
         }
     ];
 
+    
+
     pinturasData.forEach(data => {
-        // Obtener nombre de la obra para el cartel
-        const nombreObra = data.descripcion.split(',')[0];
-        const textura = new THREE.TextureLoader().load(data.textura);
-        const material = new THREE.MeshBasicMaterial({ map: textura });
-        const geometria = new THREE.PlaneGeometry(4.0, 3.0);
-        const pintura = new THREE.Mesh(geometria, material);
-        pintura.position.set(...data.posicion);
+    const nombreObra = data.descripcion.split(',')[0];
+    const textura = new THREE.TextureLoader().load(data.textura);
+    const material = new THREE.MeshBasicMaterial({ map: textura });
+    const geometria = new THREE.PlaneGeometry(4.0, 3.0);
+    const pintura = new THREE.Mesh(geometria, material);
 
-        // Rotar si está en la pared sur
-        if (data.posicion[2] > 0) pintura.rotation.y = Math.PI;
+    // Crear grupo contenedor
+    const grupoPintura = new THREE.Group();
+    grupoPintura.position.set(...data.posicion);
+    grupoPintura.rotation.y = data.rotation || 0;
 
-        // Guardar referencia y descripción
-        pintura.userData.descripcion = data.descripcion;
-        pinturasInteract.push(pintura);
+    pintura.position.set(0, 0, 0); // centrada dentro del grupo
+    grupoPintura.add(pintura);
 
-        escena.add(pintura);
+    // Guardar descripción
+    pintura.userData.descripcion = data.descripcion;
+    pinturasInteract.push(pintura);
 
-        // === MARCO DE MADERA ===
-        // Crea un marco simple alrededor de la pintura
-        const marcoMaterial = new THREE.MeshLambertMaterial({ color: 0x8B5A2B }); // Color madera
-        const marcoGrosor = 0.18;
-        const marcoProfundidad = 0.15;
+    // === MARCO ===
+    const marcoMaterial = new THREE.MeshLambertMaterial({ color: 0x8B5A2B });
+    const marcoGrosor = 0.18;
+    const marcoProfundidad = 0.15;
 
-        // Lados horizontales
-        const marcoSuperior = new THREE.Mesh(
-            new THREE.BoxGeometry(4.0 + marcoGrosor * 2, marcoGrosor, marcoProfundidad),
-            marcoMaterial
-        );
-        marcoSuperior.position.set(data.posicion[0], data.posicion[1] + 1.5 + marcoGrosor / 2, data.posicion[2]);
-        marcoSuperior.rotation.y = pintura.rotation.y;
-        escena.add(marcoSuperior);
+    // Lados horizontales
+    const marcoSuperior = new THREE.Mesh(
+        new THREE.BoxGeometry(4.0 + marcoGrosor * 2, marcoGrosor, marcoProfundidad),
+        marcoMaterial
+    );
+    marcoSuperior.position.set(0, 1.5 + marcoGrosor / 2, 0);
+    grupoPintura.add(marcoSuperior);
 
-        const marcoInferior = new THREE.Mesh(
-            new THREE.BoxGeometry(4.0 + marcoGrosor * 2, marcoGrosor, marcoProfundidad),
-            marcoMaterial
-        );
-        marcoInferior.position.set(data.posicion[0], data.posicion[1] - 1.5 - marcoGrosor / 2, data.posicion[2]);
-        marcoInferior.rotation.y = pintura.rotation.y;
-        escena.add(marcoInferior);
+    const marcoInferior = new THREE.Mesh(
+        new THREE.BoxGeometry(4.0 + marcoGrosor * 2, marcoGrosor, marcoProfundidad),
+        marcoMaterial
+    );
+    marcoInferior.position.set(0, -1.5 - marcoGrosor / 2, 0);
+    grupoPintura.add(marcoInferior);
 
-        // Lados verticales
-        const marcoIzquierdo = new THREE.Mesh(
-            new THREE.BoxGeometry(marcoGrosor, 3.0 + marcoGrosor * 2, marcoProfundidad),
-            marcoMaterial
-        );
-        marcoIzquierdo.position.set(data.posicion[0] - 2.0 - marcoGrosor / 2, data.posicion[1], data.posicion[2]);
-        marcoIzquierdo.rotation.y = pintura.rotation.y;
-        escena.add(marcoIzquierdo);
+    // Lados verticales
+    const marcoIzquierdo = new THREE.Mesh(
+        new THREE.BoxGeometry(marcoGrosor, 3.0 + marcoGrosor * 2, marcoProfundidad),
+        marcoMaterial
+    );
+    marcoIzquierdo.position.set(-2.0 - marcoGrosor / 2, 0, 0);
+    grupoPintura.add(marcoIzquierdo);
 
-        const marcoDerecho = new THREE.Mesh(
-            new THREE.BoxGeometry(marcoGrosor, 3.0 + marcoGrosor * 2, marcoProfundidad),
-            marcoMaterial
-        );
-        marcoDerecho.position.set(data.posicion[0] + 2.0 + marcoGrosor / 2, data.posicion[1], data.posicion[2]);
-        marcoDerecho.rotation.y = pintura.rotation.y;
-        escena.add(marcoDerecho);
+    const marcoDerecho = new THREE.Mesh(
+        new THREE.BoxGeometry(marcoGrosor, 3.0 + marcoGrosor * 2, marcoProfundidad),
+        marcoMaterial
+    );
+    marcoDerecho.position.set(2.0 + marcoGrosor / 2, 0, 0);
+    grupoPintura.add(marcoDerecho);
 
-        // === CARTEL CON NOMBRE DE LA OBRA ===
-            // Eliminar el cartel dorado
-    });
+    // Añadir grupo completo a la escena
+    escena.add(grupoPintura);
+});
+
 
     // Evento para mostrar descripción al hacer clic
     window.addEventListener('click', function (event) {
