@@ -119,6 +119,22 @@ class DebugPanel {
             </div>
         `;
     }
+
+    // Muestra el panel
+    show() {
+        if (this.panel) this.panel.style.display = '';
+    }
+
+    // Oculta el panel
+    hide() {
+        if (this.panel) this.panel.style.display = 'none';
+    }
+
+    // Alterna visibilidad
+    toggle() {
+        if (!this.panel) return;
+        this.panel.style.display = (this.panel.style.display === 'none') ? '' : 'none';
+    }
 }
 
 
@@ -186,7 +202,35 @@ function crearPersonasCaminando() {
         configurarEventos();
 
         reloj = new THREE.Clock();
+        // Crear panel de debug, pero ocultarlo por defecto.
         debugPanel = new DebugPanel();
+        // Por defecto oculto
+        debugPanel.hide();
+
+        // Activar si la URL contiene ?debug=1 o si se guardó preferencia en localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const debugParam = urlParams.get('debug');
+        const preferDebug = localStorage.getItem('debugPanelVisible');
+        if (debugParam === '1' || preferDebug === '1') {
+            debugPanel.show();
+        }
+
+        // Permitir alternar con F3
+        window.addEventListener('keydown', (e) => {
+            // F3 key
+            if (e.key === 'F3') {
+                debugPanel.toggle();
+                const visible = debugPanel.panel && debugPanel.panel.style.display !== 'none';
+                localStorage.setItem('debugPanelVisible', visible ? '1' : '0');
+            }
+        });
+
+        // Exponer una función global para togglear desde la consola o scripts
+        window.toggleDebugPanel = function() {
+            debugPanel.toggle();
+            const visible = debugPanel.panel && debugPanel.panel.style.display !== 'none';
+            localStorage.setItem('debugPanelVisible', visible ? '1' : '0');
+        };
 
         console.log('Museo con sala única inicializado');
         animar();
