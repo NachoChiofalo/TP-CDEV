@@ -1,0 +1,11 @@
+Model Information:
+* title:	8 bit DJ
+* source:	https://sketchfab.com/3d-models/8-bit-dj-cb5bc65d18134a02975a27f29cebf5e1
+* author:	FuneralClown (https://sketchfab.com/FuneralClown)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "8 bit DJ" (https://sketchfab.com/3d-models/8-bit-dj-cb5bc65d18134a02975a27f29cebf5e1) by FuneralClown (https://sketchfab.com/FuneralClown) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

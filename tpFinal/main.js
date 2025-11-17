@@ -17,9 +17,13 @@ let escena, camara, renderizador;
 let reloj;
 let objetosColision = [];
 let cargadorTexturas;
+let mixer; // Para animaciones
 
 // Personas caminando
 let personas = [];
+// Puertas interactuables
+let puertasInteractuables = [];
+
 
 // Variables de control
 let teclasPulsadas = {};
@@ -44,7 +48,7 @@ let sensibilidadMouse = 0.002;
 // Dimensiones de la sala única
 const DIMENSIONES_SALA = {
     ancho: 60,
-    alto: 6,
+    alto: 5,
     profundo: 40
 };
 
@@ -115,6 +119,22 @@ class DebugPanel {
             </div>
         `;
     }
+
+    // Muestra el panel
+    show() {
+        if (this.panel) this.panel.style.display = '';
+    }
+
+    // Oculta el panel
+    hide() {
+        if (this.panel) this.panel.style.display = 'none';
+    }
+
+    // Alterna visibilidad
+    toggle() {
+        if (!this.panel) return;
+        this.panel.style.display = (this.panel.style.display === 'none') ? '' : 'none';
+    }
 }
 
 
@@ -129,7 +149,7 @@ function inicializar() {
         crearCamara();
         crearRenderizador();
     // Crear modelos 3D desde array de configuración
-    crearModelos3DDesdeConfig();
+        crearModelos3DDesdeConfig();
         crearSalaUnica();
         crearIluminacion();
 
@@ -141,27 +161,32 @@ function inicializar() {
         crearPersonasCaminando();
 
     // Inicializar música ambiental por habitación
-    inicializarMusicaAmbiental();
+        inicializarMusicaAmbiental();
 
         // Música default se inicia solo al presionar el botón de entrar
 
 // PERSONAS CAMINANDO
 function crearPersonasCaminando() {
-    const { ancho, profundo } = DIMENSIONES_SALA;
     // Cargar el modelo GLTF de persona simple low poly
+    posicionesPersonas = [
+        [-1, 0, -2, -3.44],
+        [2, 0, -1, -3],
+        [-21, 0, 3, -2],
+        [13, 0, 2, 0.4]
+    ];
+
+
     const loader = new THREE.GLTFLoader();
-    for (let i = 0; i < 6; i++) {
-        let x = Math.random() * (ancho - 6) - (ancho / 2 - 3);
-        let z = Math.random() * (profundo - 6) - (profundo / 2 - 3);
-        let y = 0;
+    for (let i = 0; i < 4; i++) {
         loader.load(
             'assets/models/simple_low_poly_character/scene.gltf',
             function (gltf) {
                 const person = gltf.scene.clone();
+                const [x, y, z, rotY] = posicionesPersonas[i];
                 person.position.set(x, y, z);
-                person.scale.set(1.3, 1.3, 1.3); // Ajusta el tamaño si es necesario (1:1 para low poly)
-                person.userData.direccion = Math.random() * Math.PI * 2;
-                person.userData.velocidad = 1.2 + Math.random();
+                person.scale.set(1.3, 1.7, 1.3); // Ajusta el tamaño si es necesario (1:1 para low poly) // Convertir a radianes
+                person.rotation.y = rotY;
+                console.log('Dirección:', person.userData.direccion);
                 personas.push(person);
                 escena.add(person);
             },
@@ -177,7 +202,35 @@ function crearPersonasCaminando() {
         configurarEventos();
 
         reloj = new THREE.Clock();
+        // Crear panel de debug, pero ocultarlo por defecto.
         debugPanel = new DebugPanel();
+        // Por defecto oculto
+        debugPanel.hide();
+
+        // Activar si la URL contiene ?debug=1 o si se guardó preferencia en localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const debugParam = urlParams.get('debug');
+        const preferDebug = localStorage.getItem('debugPanelVisible');
+        if (debugParam === '1' || preferDebug === '1') {
+            debugPanel.show();
+        }
+
+        // Permitir alternar con F3
+        window.addEventListener('keydown', (e) => {
+            // F3 key
+            if (e.key === 'F3') {
+                debugPanel.toggle();
+                const visible = debugPanel.panel && debugPanel.panel.style.display !== 'none';
+                localStorage.setItem('debugPanelVisible', visible ? '1' : '0');
+            }
+        });
+
+        // Exponer una función global para togglear desde la consola o scripts
+        window.toggleDebugPanel = function() {
+            debugPanel.toggle();
+            const visible = debugPanel.panel && debugPanel.panel.style.display !== 'none';
+            localStorage.setItem('debugPanelVisible', visible ? '1' : '0');
+        };
 
         console.log('Museo con sala única inicializado');
         animar();
@@ -197,20 +250,24 @@ function crearEscena() {
 
 function crearCamara() {
     camara = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-    camara.position.set(26, 1.6, 0);
+    camara.position.set(26, 3.0, 0); // Altura más cercana al techo
     camara.rotation.order = 'YXZ'; // Importante para evitar gimbal lock
+
 }
 
 function crearRenderizador() {
     console.log('Creando renderizador optimizado...');
     renderizador = new THREE.WebGLRenderer({
         canvas: document.querySelector("#miCanvas"),
-        antialias: true
+        antialias: true,
+        powerPreference: "high-performance", // Sugerir GPU de alto rendimiento
+        alpha: false 
     });
 
     renderizador.setSize(window.innerWidth, window.innerHeight);
     renderizador.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderizador.shadowMap.enabled = false;
+    renderizador.shadowMap.enabled = true;
+    renderizador.shadowMap.type = THREE.PCFSoftShadowMap; // Mejor calidad de sombras
     renderizador.outputEncoding = THREE.sRGBEncoding;
 }
 
@@ -236,7 +293,7 @@ function crearSalaUnica() {
     // Materiales
     const materialPared = new THREE.MeshLambertMaterial({ map: texturaPared, side: THREE.DoubleSide });
     const materialSuelo = new THREE.MeshLambertMaterial({ map: texturaSuelo });
-    const materialTecho = new THREE.MeshLambertMaterial({ color: 0xfafafa });
+    const materialTecho = new THREE.MeshLambertMaterial({ color: 0x574030 });
 
     // CUADRADO
 
@@ -313,7 +370,7 @@ function crearSalaUnica() {
 
 
     const paredPasilloPuertaDer1 = new THREE.Mesh(
-        new THREE.PlaneGeometry(10, alto),
+        new THREE.PlaneGeometry(14.2, alto),
         materialPared
     )
     paredPasilloPuertaDer1.position.set(-25, alto / 2, -5);
@@ -330,8 +387,24 @@ function crearSalaUnica() {
     escena.add(paredPasilloPuertaDer2);
     objetosColision.push({ tipo: 'pared', z: -5, xMin: -14.5, xMax: -4.5 }); // ← COLISIÓN
 
+    const paredPasilloSobrePuerta2 = new THREE.Mesh(
+    new THREE.PlaneGeometry(38, 0.6),
+    materialPared
+    )
+    paredPasilloSobrePuerta2.position.set(0, 4.7, -5);
+    escena.add(paredPasilloSobrePuerta2);
+    objetosColision.push({ tipo: 'pared', z: -5, xMin: -14.5, xMax: -4.5 }); // ← COLISIÓN
+
 
     // CUADRADO 2 
+
+    const paredPasilloSobrePuerta1 = new THREE.Mesh(
+    new THREE.PlaneGeometry(38, 0.6),
+    materialPared
+    )
+    paredPasilloSobrePuerta1.position.set(0, 4.7, 5);
+    escena.add(paredPasilloSobrePuerta1);
+    objetosColision.push({ tipo: 'pared', z: 5, xMin: -14.5, xMax: -4.5 }); // ← COLISIÓN
 
     const paredFrontDer = new THREE.Mesh(
         new THREE.PlaneGeometry(15, alto),
@@ -344,7 +417,7 @@ function crearSalaUnica() {
 
 
     const paredPasilloPuertaDer3 = new THREE.Mesh(
-        new THREE.PlaneGeometry(10, alto),
+        new THREE.PlaneGeometry(14.2, alto),
         materialPared
     )
     paredPasilloPuertaDer3.position.set(0, alto / 2, -5);
@@ -373,7 +446,7 @@ function crearSalaUnica() {
 
 
     const paredPasilloPuertaIzq1 = new THREE.Mesh(
-        new THREE.PlaneGeometry(10, alto),
+        new THREE.PlaneGeometry(14.2, alto),
         materialPared
     )
     paredPasilloPuertaIzq1.position.set(-25, alto / 2, 5);
@@ -404,7 +477,7 @@ function crearSalaUnica() {
 
 
     const paredPasilloPuertaIzq3 = new THREE.Mesh(
-        new THREE.PlaneGeometry(10, alto),
+        new THREE.PlaneGeometry(14.2, alto),
         materialPared
     )
     paredPasilloPuertaIzq3.position.set(0, alto / 2, 5);
@@ -421,11 +494,11 @@ function crearSalaUnica() {
 
     // Columnas decorativas
     crearColumnasDecorativas();
+    cargarLogoUTN();
 }
 
-
 function crearColumnasDecorativas() {
-    const materialColumna = new THREE.MeshLambertMaterial({ color: 0xd4af37 });
+    const materialColumna = new THREE.MeshLambertMaterial({ color: 0x734E31 });
     const geometriaColumna = new THREE.CylinderGeometry(0.5, 0.5, DIMENSIONES_SALA.alto, 16);
 
     // Crear columnas en las esquinas
@@ -433,12 +506,16 @@ function crearColumnasDecorativas() {
         { x: -DIMENSIONES_SALA.ancho / 2 + 1, z: -DIMENSIONES_SALA.profundo / 2 + 1 },
         { x: DIMENSIONES_SALA.ancho / 2 - 1, z: -DIMENSIONES_SALA.profundo / 2 + 1 },
         { x: -DIMENSIONES_SALA.ancho / 2 + 1, z: DIMENSIONES_SALA.profundo / 2 - 1 },
-        { x: DIMENSIONES_SALA.ancho / 2 - 1, z: DIMENSIONES_SALA.profundo / 2 - 1 }
+        { x: DIMENSIONES_SALA.ancho / 2 - 1, z: DIMENSIONES_SALA.profundo / 2 - 1 },
+        { x: 2, z: 0 },
+        { x: -10, z: 0 },
+        { x: 19, z: 0 },
     ];
 
     posicionesColumnas.forEach(pos => {
         const columna = new THREE.Mesh(geometriaColumna, materialColumna);
         columna.position.set(pos.x, DIMENSIONES_SALA.alto / 2, pos.z);
+        objetosColision.push({ tipo: 'columna', x: pos.x, z: pos.z, radio: 0.5 });
         escena.add(columna);
     });
 }
@@ -467,6 +544,7 @@ function crearIluminacion() {
     luzFocal1.target.position.set(0, 0, 0);
     escena.add(luzFocal1);
     escena.add(luzFocal1.target);
+
 }
 
 
@@ -491,19 +569,19 @@ function crearModelos3DDesdeConfig() {
         },
         {
             path: 'assets/models/modern_bench_1/scene.gltf',
-            position: { x: 15, y: 0, z: 0 },
+            position: { x: 17, y: 0, z: 0 },
             scale: { x: 2.0, y: 2.0, z: 2.0 },
             rotation: { x: 0, y: Math.PI, z: 0 }
         },
         {
             path: 'assets/models/apple_ii_computer.glb',
-            position: { x: -3.9, y: 1, z: -9 },
-            scale: { x: 2.0, y: 2.0, z: 2.0 },
-            rotation: { x: 0, y: Math.PI / 2, z: 0 },
+            position: { x: -20, y: 1, z: -15 },
+            scale: { x: 3.0, y: 3.0, z: 3.0 },
+            rotation: { x: 0, y: 0, z: 0 },
             base: {
                 color: 0x222222,
                 // La base está debajo del modelo, así que la posición Y del modelo es la parte superior de la base
-                size: { x: 1, y: 1, z: 1.5 }
+                size: { x: 3, y: 1, z: 2 }
             }
         },
 
@@ -514,6 +592,65 @@ function crearModelos3DDesdeConfig() {
             scale: { x: 0.5, y: 0.5, z: 0.5 },
             rotation: { x: 0, y: Math.PI / 2, z: 0 },
             
+        },
+        {
+            path: 'assets/models/8_bit_dj/scene.gltf',
+            // La posición Y del modelo es la parte superior de la base
+            position: { x: -27.33, y: 0.6, z: -7 },
+            scale: { x: 0.009, y: 0.009, z: 0.009 },
+            rotation: { x: 0, y: Math.PI / 3, z: 0 },
+            
+        },
+// En la configuración de modelos, actualiza la ruta de la puerta:
+        {
+            path: 'assets/models/old_wooden_door_gltf/scene.gltf', // ← Cambiado aquí también
+            position: { x: 8.8, y: 0, z: -5 },
+            scale: { x: 1.5, y: 1.25, z: 1.5 },
+            rotation: { x: 0, y: -Math.PI/4, z: 0 },
+            tipo: 'puerta',
+            propiedadesPuerta: {
+                tiempoCierre: 4000,
+                gradoApertura: Math.PI / 2
+            }
+        },
+        {
+            path: 'assets/models/old_wooden_door_gltf/scene.gltf', // ← Cambiado aquí también
+            position: { x: 8.8, y: 0, z: 5 },
+            scale: { x: 1.5, y: 1.25, z: 1.5 },
+            rotation: { x: 0, y: Math.PI/4, z: 0 },
+            tipo: 'puerta',
+            propiedadesPuerta: {
+                tiempoCierre: 4000,
+                gradoApertura: Math.PI / 2
+            }
+        },
+        {
+            path: 'assets/models/old_wooden_door_gltf/scene.gltf', // ← Cambiado aquí también
+            position: { x: -16.2, y: 0, z: 5 },
+            scale: { x: 1.5, y: 1.25, z: 1.5 },
+            rotation: { x: 0, y: Math.PI/4, z: 0 },
+            tipo: 'puerta',
+            propiedadesPuerta: {
+                tiempoCierre: 4000,
+                gradoApertura: Math.PI / 2
+            }
+        },
+        {
+            path: 'assets/models/old_wooden_door_gltf/scene.gltf', // ← Cambiado aquí también
+            position: { x: -16.2, y: 0, z: -5 },
+            scale: { x: 1.5, y: 1.25, z: 1.5 },
+            rotation: { x: 0, y: -Math.PI/4, z: 0 },
+            tipo: 'puerta',
+            propiedadesPuerta: {
+                tiempoCierre: 4000,
+                gradoApertura: Math.PI / 2
+            }
+        },
+        {
+            path: 'assets/models/frank/scene.gltf', // ← Cambiado aquí también
+            position: { x: 14, y: 1.1, z: -13 },
+            scale: { x: 1.5, y: 1.5, z: 1.5 },
+            rotation: { x: 0, y: 0, z: 0 },
         }
         // Puedes agregar más modelos aquí
         // {
@@ -524,6 +661,28 @@ function crearModelos3DDesdeConfig() {
         //     base: { color: 0x888888, size: { x: 1.6, y: 0.3, z: 1.6 } }
         // },
     ];
+    const loader1 = new THREE.GLTFLoader();
+    clock = new THREE.Clock();
+    loader1.load('assets/models/dinobot/source/model.gltf', (gltf) => {
+        model = gltf.scene;
+        model.position.set(-8, 0, -9);
+        model.scale.set(1.6, 1.6, 1.6);
+        model.rotation.y = Math.PI/5;
+        escena.add(model);
+
+        // Animaciones
+        const animations = gltf.animations;
+        console.log("Animaciones:", animations);
+
+        // Crear mixer y reproducir una animación
+        mixer = new THREE.AnimationMixer(model);
+
+        // Selecciona una animación por nombre
+        const idleAnim = THREE.AnimationClip.findByName(animations, 'test');
+        const action = mixer.clipAction(idleAnim);
+        action.play();
+    });
+
 
     const loader = new THREE.GLTFLoader();
     modelosConfig.forEach(cfg => {
@@ -558,7 +717,6 @@ function crearModelos3DDesdeConfig() {
                         modelo: baseMesh
                     });
                 }
-
                 escena.add(modelo);
 
                 // Registrar el modelo para colisiones (se recalcula el bounding box en cada verificación)
@@ -566,6 +724,48 @@ function crearModelos3DDesdeConfig() {
                     tipo: 'modelo3d',
                     modelo: modelo
                 });
+
+                // Si es una puerta, darle propiedades y registrar
+                if (cfg.tipo === 'puerta') {
+                    descomponerMatrices(modelo);
+
+                    // 1. Calcular bounding box del modelo
+                    const box = new THREE.Box3().setFromObject(modelo);
+                    const size = new THREE.Vector3();
+                    box.getSize(size);
+
+                    // 2. Calcular el desplazamiento para que la base esté en (0,0,0)
+                    const offset = new THREE.Vector3(
+                        -(box.min.x + size.x / 2), // Centrar en X
+                        -box.min.y,                // Llevar base a Y=0
+                        -(box.min.z + size.z / 2)  // Centrar en Z
+                    );
+
+                    // 3. Crear un grupo y agregar el modelo desplazado
+                    const group = new THREE.Group();
+                    modelo.position.add(offset); // Mueve el modelo internamente
+                    group.add(modelo);
+
+                    // 4. Ahora aplica la posición, escala y rotación al grupo
+                    group.scale.set(cfg.scale.x, cfg.scale.y, cfg.scale.z);
+                    group.position.set(cfg.position.x, cfg.position.y, cfg.position.z);
+                    group.rotation.set(cfg.rotation.x, cfg.rotation.y, cfg.rotation.z);
+
+                    group.userData.estado = 'cerrada';
+                    group.userData.tiempoCierre = cfg.propiedadesPuerta.tiempoCierre || 4000;
+                    group.userData.animando = false;
+                    group.userData.gradoApertura = cfg.propiedadesPuerta.gradoApertura || Math.PI / 2;
+
+                    puertasInteractuables.push(group);
+                    objetosColision.push({
+                        tipo: 'pared',
+                        modelo: group
+                    });
+                    escena.add(group);
+
+                    console.log('Puerta interactuable cargadaaaa:', group);
+                    ;
+                }
 
                 // Debug: mostrar bounding box en consola
                 const box = new THREE.Box3().setFromObject(modelo);
@@ -576,6 +776,48 @@ function crearModelos3DDesdeConfig() {
                 console.error('Error cargando modelo:', cfg.path, error);
             }
         );
+    });
+}
+
+function descomponerMatrices(obj) {
+    obj.traverse(child => {
+        if (child.matrix && !child.matrixAutoUpdate) {
+            child.matrix.decompose(child.position, child.quaternion, child.scale);
+            child.matrixAutoUpdate = true;
+        }
+    });
+}
+
+function alternarPuertaOldWooden(puerta) {
+    if (puerta.userData.animando) return;
+
+    // Buscar el nodo de la puerta (SM_door_68)
+    let nodoPuerta = null;
+    puerta.traverse(child => {
+        if (child.name === "SM_door_68") {
+            nodoPuerta = child;
+        }
+    });
+
+    if (!nodoPuerta) {
+        console.warn("No se encontró el nodo de la puerta para animar");
+        return;
+    }
+
+    puerta.userData.animando = true;
+    const abierta = puerta.userData.estado === "abierta";
+    const rotInicial = nodoPuerta.rotation.y;
+    const rotFinal = abierta ? 0 : -Math.PI / 2; // Abrir -90 grados en Y
+
+    // Animar apertura/cierre
+    gsap.to(nodoPuerta.rotation, {
+        y: rotFinal,
+        duration: 1,
+        ease: "power2.inOut",
+        onComplete: () => {
+            puerta.userData.estado = abierta ? "cerrada" : "abierta";
+            puerta.userData.animando = false;
+        }
     });
 }
 
@@ -637,8 +879,21 @@ function cargarModelo3DBench() {
         }
     );
 }
+// cargar logo utn
+function cargarLogoUTN() {
+    const textura = new THREE.TextureLoader().load("assets/texturas/UTN_logo.jpg");
+    const material = new THREE.MeshBasicMaterial({ map: textura });
+    const geometria = new THREE.PlaneGeometry(4.0, 3.0);
+    const pintura = new THREE.Mesh(geometria, material);
+    pintura.position.set(20.53, 2.5, -15);
 
-
+    // Rotar si está en la pared sur
+    pintura.rotation.y = Math.PI / 2;
+    // Guardar referencia y descripción
+    pintura.userData.descripcion = "Logo de la Universidad Tecnológica Nacional";
+    pinturasInteract.push(pintura);
+    escena.add(pintura);
+}
 
 // Array global para almacenar las pinturas y sus descripciones
 let pinturasInteract = [];
@@ -651,94 +906,191 @@ function crearObrasConTexturas() {
     console.log('Cargando obras de arte...');
 
     // Datos de las pinturas
-    const lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, urna eu tincidunt consectetur, nisi nisl aliquam enim, nec dictum nisi nisl euismod nisi. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Etiam at risus et justo dignissim congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet. Nunc eu ullamcorper orci. Quisque eget odio ac lectus vestibulum faucibus eget in metus. In pellentesque faucibus vestibulum. Nulla at nulla justo, eget luctus tortor. Nulla facilisi. Duis aliquet egestas purus in blandit. Curabitur vulputate, ligula lacinia scelerisque tempor, lacus lacus ornare ante, ac egestas est urna sit amet arcu. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.";
     const pinturasData = [
-        { textura: "assets/texturas/capilla_sixtina.webp", posicion: [15, 2.5, -4.9], descripcion: lorem },
-        { textura: "assets/texturas/cuadro_extra6.webp", posicion: [0, 2.5, -4.9], descripcion: lorem },
-        { textura: "assets/texturas/las_meninas.webp", posicion: [-8, 2.5, -4.9], descripcion: lorem },
-        { textura: "assets/texturas/noche_estrellada.webp", posicion: [-8, 2.5, 4.9], descripcion: lorem },
-        { textura: "assets/texturas/cuadro_extra4.webp", posicion: [0, 2.5, 4.9], descripcion: lorem },
-        { textura: "assets/texturas/girl_pearl_earring.webp", posicion: [15, 2.5, 4.9], descripcion: lorem },
-        { textura: "assets/texturas/mona_lisa.webp", posicion: [0, 2.5, -19.4], descripcion: lorem },
-        { textura: "assets/texturas/guernica.webp", posicion: [8, 2.5, -19.4], descripcion: lorem },
-        { textura: "assets/texturas/van_gogh_girasoles.webp", posicion: [16, 2.5, -19.4], descripcion: lorem },
-        { textura: "assets/texturas/van_gogh_autorretrato.webp", posicion: [0, 2.5, 19.4], descripcion: lorem },
-        { textura: "assets/texturas/el_nacimiento_venus.webp", posicion: [8, 2.5, 19.4], descripcion: lorem },
-        { textura: "assets/texturas/mona_lisa_new.webp", posicion: [16, 2.5, 19.4], descripcion: lorem },
-        { textura: "assets/texturas/van_gogh_autorretrato.webp", posicion: [-12, 2.5, 19.4], descripcion: lorem },
-        { textura: "assets/texturas/el_nacimiento_venus.webp", posicion: [-17, 2.5, 19.4], descripcion: lorem },
-        { textura: "assets/texturas/mona_lisa_new.webp", posicion: [-23, 2.5, 19.4], descripcion: lorem },
-        { textura: "assets/texturas/van_gogh_autorretrato.webp", posicion: [-12, 2.5, -19.4], descripcion: lorem },
-        { textura: "assets/texturas/el_nacimiento_venus.webp", posicion: [-17, 2.5, -19.4], descripcion: lorem },
-        { textura: "assets/texturas/mona_lisa_new.webp", posicion: [-23, 2.5, -19.4], descripcion: lorem }
+        {
+            textura: "assets/texturas/capilla_sixtina.webp",
+            posicion: [15, 2.5, -4.9],
+            descripcion: "La Creación de Adán - Miguel Ángel (1512)\n\nUna de las escenas más icónicas del techo de la Capilla Sixtina. Esta obra maestra del Renacimiento representa el momento bíblico en que Dios da vida a Adán. El casi-contacto entre los dedos de Dios y Adán se ha convertido en una de las imágenes más reproducidas de la historia del arte. Miguel Ángel pintó esta y otras escenas en el techo entre 1508 y 1512, trabajando en condiciones extremadamente difíciles sobre andamios a gran altura."
+        },
+        {
+            textura: "assets/texturas/dormitorio_en_arles.webp",
+            posicion: [0, 2.5, -4.9],
+            descripcion: "El Dormitorio en Arlés - Vincent van Gogh (1888)\n\nVan Gogh pintó esta obra durante su estancia en la Casa Amarilla de Arlés, representando su propio dormitorio. Los colores vibrantes y la perspectiva ligeramente distorsionada crean una sensación de calidez e intimidad. Para Van Gogh, esta pintura simbolizaba descanso y tranquilidad. El artista estaba tan orgulloso de esta obra que realizó tres versiones, actualmente en diferentes museos. Las paredes azul lavanda contrastan bellamente con el suelo rojo y la cama amarilla."
+        },
+        {
+            textura: "assets/texturas/las_meninas.webp",
+            posicion: [-8, 2.5, -4.9],
+            descripcion: "Las Meninas - Diego Velázquez (1656)\n\nConsiderada una de las pinturas más importantes de la historia del arte occidental. Esta compleja obra muestra a la infanta Margarita rodeada de sus damas de compañía (meninas), otros miembros de la corte y el propio Velázquez pintando. El juego de perspectivas y espejos ha fascinado a críticos durante siglos. La obra se encuentra en el Museo del Prado en Madrid y es un ejemplo supremo del Barroco español."
+        },
+        {
+            textura: "assets/texturas/noche_estrellada.webp",
+            posicion: [-8, 2.5, 4.9],
+            rotation: Math.PI,
+            descripcion: "La Noche Estrellada - Vincent van Gogh (1889)\n\nPintada durante la estancia de Van Gogh en el asilo de Saint-Rémy-de-Provence, esta obra muestra una vista nocturna desde su ventana con un ciprés en primer plano y un pueblo al fondo. El cielo arremolinado con estrellas brillantes y una luna creciente refleja tanto la turbulencia emocional del artista como su genio creativo. Actualmente se exhibe en el MoMA de Nueva York y es una de las pinturas más reconocidas del mundo."
+        },
+        {
+            textura: "assets/texturas/girl_pearl_earring.webp",
+            posicion: [15, 2.5, 4.9],
+            rotation: Math.PI,
+            descripcion: "La Joven de la Perla - Johannes Vermeer (1665)\n\nApodada la 'Mona Lisa del Norte', esta pintura captura a una joven con un turbante exótico y un gran pendiente de perla. La mirada directa de la joven y su expresión enigmática han cautivado al público durante siglos. Vermeer utilizó su característico dominio de la luz para crear profundidad y luminosidad. La obra se encuentra en la Mauritshuis de La Haya y representa el apogeo del arte barroco holandés."
+        },
+        {
+            textura: "assets/texturas/mona_lisa.webp",
+            posicion: [0, 2.5, -19.4],
+            descripcion: "La Mona Lisa - Leonardo da Vinci (1503-1519)\n\nLa pintura más famosa del mundo. Este retrato de Lisa Gherardini, esposa de un comerciante florentino, es célebre por la enigmática sonrisa de la retratada y la revolucionaria técnica del sfumato utilizada por Leonardo. La obra tardó años en completarse y Leonardo la llevó consigo a Francia. Actualmente es la joya de la corona del Museo del Louvre en París, donde atrae millones de visitantes cada año."
+        },
+        {
+            textura: "assets/texturas/guernica.webp",
+            posicion: [8, 2.5, -19.4],
+            descripcion: "Guernica - Pablo Picasso (1937)\n\nEsta monumental obra en blanco y negro fue creada en respuesta al bombardeo de la ciudad vasca de Guernica durante la Guerra Civil Española. Con sus figuras distorsionadas y expresiones de agonía, Picasso creó un poderoso alegato antibelicista que trasciende su contexto histórico específico. La pintura de 3.5 x 7.8 metros se exhibe en el Museo Reina Sofía de Madrid y es considerada una de las obras más influyentes del siglo XX."
+        },
+        {
+            textura: "assets/texturas/van_gogh_girasoles.webp",
+            posicion: [16, 2.5, -19.4],
+            descripcion: "Los Girasoles - Vincent van Gogh (1888)\n\nVan Gogh pintó una serie de cuadros de girasoles, siendo esta una de las versiones más conocidas. Creada en Arlés durante uno de sus períodos más productivos, la obra muestra su característico uso vibrante del color amarillo y pinceladas expresivas. Para Van Gogh, los girasoles simbolizaban gratitud. Existen varias versiones de esta obra en diferentes museos alrededor del mundo, testimonio de la fascinación del artista con este tema."
+        },
+        {
+            textura: "assets/texturas/cristianMac-Crepusculo.png",
+            posicion: [0, 2.5, 19.4],
+            rotation: Math.PI,
+            descripcion: "Crepúsculo - Cristian Mac (2024)\n\nUna obra contemporánea que captura la transición efímera entre el día y la noche. Mac utiliza una paleta de colores cálidos y fríos en equilibrio perfecto para representar ese momento mágico donde la luz solar se desvanece y da paso a la oscuridad. La composición invita al espectador a reflexionar sobre los ciclos naturales y el paso inevitable del tiempo. Esta pieza forma parte de la serie 'Momentos Fugaces' del artista, donde explora la belleza de los instantes transitorios que a menudo pasan desapercibidos en la vida cotidiana."
+        },
+        {
+            textura: "assets/texturas/cristianMac-Ojo.png",
+            posicion: [8, 2.5, 19.4],
+            rotation: Math.PI,
+            descripcion: "Ojo - Cristian Mac (2024)\n\nUna exploración íntima de la mirada humana como ventana al alma. Mac deconstruye el concepto tradicional del retrato para enfocarse únicamente en el órgano de la percepción, creando una obra que es simultáneamente observadora y observada. El detallismo técnico se combina con elementos abstractos que rodean el ojo, sugiriendo las capas de conciencia y subconsciencia que subyacen en cada mirada. Esta obra invita al espectador a confrontar su propia forma de ver y ser visto, cuestionando la naturaleza de la observación artística."
+        },
+        {
+            textura: "assets/texturas/cristianMac-Simetria.png",
+            posicion: [16, 2.5, 19.4],
+            rotation: Math.PI,
+            descripcion: "Simetría - Cristian Mac (2024)\n\nUna meditación visual sobre el equilibrio y la armonía en la composición. Mac explora los principios matemáticos y estéticos de la simetría, creando una obra que dialoga entre el orden y el caos, lo predecible y lo sorprendente. La repetición de formas y patrones genera un ritmo visual hipnótico que atrae la mirada del espectador hacia el centro de la composición. Esta pieza representa la búsqueda del artista por encontrar belleza en la estructura y el orden, mientras mantiene espacio para la interpretación personal y la experiencia subjetiva del observador."
+        },
+        {
+            textura: "assets/texturas/Maradona.JPG",
+            posicion: [-12, 2.5, 19.4],
+            rotation: Math.PI,
+            descripcion: "Diego Armando Maradona - Argentina (1986)\n\nFotografía icónica del capitán argentino alzando la Copa del Mundo en México 1986. Esta imagen simboliza el punto más alto de la carrera de Maradona y uno de los momentos más gloriosos del fútbol argentino. Con el trofeo en alto y la mirada llena de emoción, la fotografía captura la mezcla de genio, pasión y liderazgo que definieron su figura. Su legado trasciende el deporte: un símbolo cultural que marcó generaciones y unió a todo un país."
+        },
+        {
+            textura: "assets/texturas/messi.jpg",
+            posicion: [-17, 2.5, 19.4],
+            rotation: Math.PI,
+            descripcion: "Lionel Andrés Messi - Argentina (2006)\n\nFotografía tomada durante el Mundial de Alemania 2006, donde un joven Messi, con la camiseta número 18, celebraba uno de sus primeros goles con la Selección Argentina. Con el cabello largo y una expresión llena de ilusión, la imagen representa el inicio de una leyenda. Este momento marcó el comienzo de una carrera que transformaría el fútbol mundial, y simboliza la irrupción de un talento que, con humildad y determinación, llevaría a su país a lo más alto años después."
+        },
+        {
+            textura: "assets/texturas/kempes.jpg",
+            posicion: [-23, 2.5, 19.4],
+            rotation: Math.PI,
+            descripcion: "Mario Alberto Kempes - Argentina (1978)\n\nRetrato del goleador del Mundial de 1978, pieza central del primer título mundial de la Selección Argentina. Su melena característica y su expresión firme evocan la época dorada del fútbol setentista. Kempes fue héroe y emblema del esfuerzo nacional, con dos goles en la final y una carrera marcada por su potencia y humildad. La fotografía sintetiza la pasión de un pueblo y la figura del primer gran campeón argentino."
+        },
+        {
+            textura: "assets/texturas/van_gogh_autorretrato.webp",
+            posicion: [-12, 2.5, -19.4],
+            descripcion: "Autorretrato - Vincent van Gogh (1889)\n\nVan Gogh pintó más de 30 autorretratos durante su vida, siendo esta una de sus obras más introspectivas. Con pinceladas arremolinadas y colores intensos, el artista se representa con una mirada penetrante que refleja tanto su determinación artística como su lucha interior. Los autorretratos de Van Gogh son documentos psicológicos invaluables que revelan su evolución personal y artística durante sus turbulentos últimos años."
+        },
+        {
+            textura: "assets/texturas/el_nacimiento_venus.webp",
+            posicion: [-17, 2.5, -19.4],
+            descripcion: "El Nacimiento de Venus - Sandro Botticelli (1485)\n\nEsta obra icónica del Renacimiento temprano representa a la diosa Venus emergiendo del mar sobre una concha, empujada por los vientos Céfiro y Aura hacia la costa donde la espera una de las Horas. La composición elegante y la belleza idealizada de Venus ejemplifican los ideales renacentistas de armonía y proporción. La pintura se encuentra en la Galería Uffizi de Florencia y es una de las obras más célebres del Renacimiento italiano."
+        },
+        {
+            textura: "assets/texturas/mona_lisa_new.webp",
+            posicion: [-23, 2.5, -19.4],
+            descripcion: "La Mona Lisa - Leonardo da Vinci (1503-1519)\n\nLa pintura más famosa del mundo. Este retrato de Lisa Gherardini, esposa de un comerciante florentino, es célebre por la enigmática sonrisa de la retratada y la revolucionaria técnica del sfumato utilizada por Leonardo. La obra tardó años en completarse y Leonardo la llevó consigo a Francia. Actualmente es la joya de la corona del Museo del Louvre en París, donde atrae millones de visitantes cada año."
+        },
+        {
+            textura: "assets/texturas/van_gogh_autorretrato_vendaje.webp",
+            posicion: [20.1, 2.5, -9],
+            rotation: -Math.PI / 2,
+            descripcion: "Autorretrato con Vendaje en la Oreja - Vincent van Gogh (1889)\n\nEste autorretrato fue pintado poco después del famoso incidente en el que Van Gogh se cortó parte de su oreja. La obra refleja la turbulencia emocional del artista, con pinceladas intensas y colores vibrantes que transmiten su estado mental agitado. Van Gogh se representa con un vendaje en la oreja y una expresión introspectiva, ofreciendo una visión cruda de su lucha personal. Actualmente se encuentra en el Museo Courtauld de Londres."
+        },
+        {
+            textura: "assets/texturas/van_gogh_doctor.webp",
+            posicion: [20.1, 2.5, -15.5],
+            rotation: -Math.PI / 2,
+            descripcion: "El Doctor Gachet - Vincent van Gogh (1890)\n\nEste retrato del Dr. Gachet, el médico que atendió a Van Gogh en sus últimos días, es una de las obras más emotivas del artista. La pintura captura la melancolía y la introspección del médico, reflejando la propia lucha de Van Gogh con la salud mental. La obra es un ejemplo del estilo postimpresionista de Van Gogh, con colores vibrantes y pinceladas expresivas. Actualmente se encuentra en una colección privada."
+        },
+        {
+            textura: "assets/texturas/Martyrdom_Michelangelo.webp",
+            posicion: [-4, 2.5, -15.5],
+            rotation: Math.PI / 2,
+            descripcion: "Martirio de San Pedro - Michelangelo (1547-1555)\n\nEsta obra maestra de Michelangelo es un poderoso ejemplo de su habilidad para representar la figura humana en toda su complejidad emocional. El martirio de San Pedro, crucificado boca abajo, es una representación conmovedora de la fe y el sacrificio. La escultura, realizada en mármol, captura la tensión y la dramatización características del Renacimiento. Actualmente se encuentra en la Basílica de San Pedro en el Vaticano."
+        },
+        {
+            textura: "assets/texturas/Michelangelo Paintings.webp",
+            posicion: [-4, 2.5, -9],
+            rotation: Math.PI / 2,
+            descripcion: "autoretrato - Michelangelo (1547-1555)\n\nEsta obra maestra de Michelangelo es un poderoso ejemplo de su habilidad para representar la figura humana en toda su complejidad emocional. El mart"
+        },
     ];
 
+    
+
     pinturasData.forEach(data => {
-        // Obtener nombre de la obra para el cartel
-        const nombreObra = data.descripcion.split(',')[0];
-        const textura = new THREE.TextureLoader().load(data.textura);
-        const material = new THREE.MeshBasicMaterial({ map: textura });
-        const geometria = new THREE.PlaneGeometry(4.0, 3.0);
-        const pintura = new THREE.Mesh(geometria, material);
-        pintura.position.set(...data.posicion);
+    const nombreObra = data.descripcion.split(',')[0];
+    const textura = new THREE.TextureLoader().load(data.textura);
+    const material = new THREE.MeshBasicMaterial({ map: textura });
+    const geometria = new THREE.PlaneGeometry(4.0, 3.0);
+    const pintura = new THREE.Mesh(geometria, material);
 
-        // Rotar si está en la pared sur
-        if (data.posicion[2] > 0) pintura.rotation.y = Math.PI;
+    // Crear grupo contenedor
+    const grupoPintura = new THREE.Group();
+    grupoPintura.position.set(...data.posicion);
+    grupoPintura.rotation.y = data.rotation || 0;
 
-        // Guardar referencia y descripción
-        pintura.userData.descripcion = data.descripcion;
-        pinturasInteract.push(pintura);
+    pintura.position.set(0, 0, 0); // centrada dentro del grupo
+    grupoPintura.add(pintura);
 
-        escena.add(pintura);
+    // Guardar descripción
+    pintura.userData.descripcion = data.descripcion;
+    pinturasInteract.push(pintura);
 
-        // === MARCO DE MADERA ===
-        // Crea un marco simple alrededor de la pintura
-        const marcoMaterial = new THREE.MeshLambertMaterial({ color: 0x8B5A2B }); // Color madera
-        const marcoGrosor = 0.18;
-        const marcoProfundidad = 0.15;
+    // === MARCO ===
+    const marcoMaterial = new THREE.MeshLambertMaterial({ color: 0x8B5A2B });
+    const marcoGrosor = 0.18;
+    const marcoProfundidad = 0.15;
 
-        // Lados horizontales
-        const marcoSuperior = new THREE.Mesh(
-            new THREE.BoxGeometry(4.0 + marcoGrosor * 2, marcoGrosor, marcoProfundidad),
-            marcoMaterial
-        );
-        marcoSuperior.position.set(data.posicion[0], data.posicion[1] + 1.5 + marcoGrosor / 2, data.posicion[2]);
-        marcoSuperior.rotation.y = pintura.rotation.y;
-        escena.add(marcoSuperior);
+    // Lados horizontales
+    const marcoSuperior = new THREE.Mesh(
+        new THREE.BoxGeometry(4.0 + marcoGrosor * 2, marcoGrosor, marcoProfundidad),
+        marcoMaterial
+    );
+    marcoSuperior.position.set(0, 1.5 + marcoGrosor / 2, 0);
+    grupoPintura.add(marcoSuperior);
 
-        const marcoInferior = new THREE.Mesh(
-            new THREE.BoxGeometry(4.0 + marcoGrosor * 2, marcoGrosor, marcoProfundidad),
-            marcoMaterial
-        );
-        marcoInferior.position.set(data.posicion[0], data.posicion[1] - 1.5 - marcoGrosor / 2, data.posicion[2]);
-        marcoInferior.rotation.y = pintura.rotation.y;
-        escena.add(marcoInferior);
+    const marcoInferior = new THREE.Mesh(
+        new THREE.BoxGeometry(4.0 + marcoGrosor * 2, marcoGrosor, marcoProfundidad),
+        marcoMaterial
+    );
+    marcoInferior.position.set(0, -1.5 - marcoGrosor / 2, 0);
+    grupoPintura.add(marcoInferior);
 
-        // Lados verticales
-        const marcoIzquierdo = new THREE.Mesh(
-            new THREE.BoxGeometry(marcoGrosor, 3.0 + marcoGrosor * 2, marcoProfundidad),
-            marcoMaterial
-        );
-        marcoIzquierdo.position.set(data.posicion[0] - 2.0 - marcoGrosor / 2, data.posicion[1], data.posicion[2]);
-        marcoIzquierdo.rotation.y = pintura.rotation.y;
-        escena.add(marcoIzquierdo);
+    // Lados verticales
+    const marcoIzquierdo = new THREE.Mesh(
+        new THREE.BoxGeometry(marcoGrosor, 3.0 + marcoGrosor * 2, marcoProfundidad),
+        marcoMaterial
+    );
+    marcoIzquierdo.position.set(-2.0 - marcoGrosor / 2, 0, 0);
+    grupoPintura.add(marcoIzquierdo);
 
-        const marcoDerecho = new THREE.Mesh(
-            new THREE.BoxGeometry(marcoGrosor, 3.0 + marcoGrosor * 2, marcoProfundidad),
-            marcoMaterial
-        );
-        marcoDerecho.position.set(data.posicion[0] + 2.0 + marcoGrosor / 2, data.posicion[1], data.posicion[2]);
-        marcoDerecho.rotation.y = pintura.rotation.y;
-        escena.add(marcoDerecho);
+    const marcoDerecho = new THREE.Mesh(
+        new THREE.BoxGeometry(marcoGrosor, 3.0 + marcoGrosor * 2, marcoProfundidad),
+        marcoMaterial
+    );
+    marcoDerecho.position.set(2.0 + marcoGrosor / 2, 0, 0);
+    grupoPintura.add(marcoDerecho);
 
-        // === CARTEL CON NOMBRE DE LA OBRA ===
-            // Eliminar el cartel dorado
-    });
+    // Añadir grupo completo a la escena
+    escena.add(grupoPintura);
+});
+
 
     // Evento para mostrar descripción al hacer clic
     window.addEventListener('click', function (event) {
         if (document.pointerLockElement !== document.body) return;
-
+        console.log('🔫 Click detectado en posición:', event.clientX, event.clientY);
         // Raycaster para detectar objetos bajo el mouse
         const mouse = new THREE.Vector2(
             (event.clientX / window.innerWidth) * 2 - 1,
@@ -747,13 +1099,43 @@ function crearObrasConTexturas() {
         const raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(mouse, camara);
 
-        const intersects = raycaster.intersectObjects(pinturasInteract);
-        if (intersects.length > 0) {
-            const pintura = intersects[0].object;
+        // Detectar pinturas
+        const intersectPinturas = raycaster.intersectObjects(pinturasInteract, true);
+        if (intersectPinturas.length > 0) {
+            const pintura = intersectPinturas[0].object;
             mostrarDescripcionPintura(pintura.userData.descripcion);
+            return; // no procesar puertas si se hizo clic en una pintura
+        }
+
+        // Detectar puertas - MEJORADO para buscar en toda la jerarquía
+        let puertaClickeada = null;
+        for (const puerta of puertasInteractuables) {
+            const intersecciones = raycaster.intersectObject(puerta, true);
+            if (intersecciones.length > 0) {
+                // Buscar el grupo padre (puerta) en la jerarquía
+                let obj = intersecciones[0].object;
+                while (obj && obj !== puerta) {
+                    obj = obj.parent;
+                }
+                if (obj === puerta) {
+                    puertaClickeada = puerta;
+                    console.log('🎯 Puerta intersectada:', puerta);
+                    break;
+                }
+            }
+        }
+
+        if (puertaClickeada) {
+            console.log('🚪 Clic en puerta detectado, estado actual:', puertaClickeada.userData.estado);
+            alternarPuertaOldWooden(puertaClickeada);
+        } else {
+            console.log('❌ No se intersectó ninguna puerta');
         }
     });
+
 }
+
+// ========================
 
 // Muestra la descripción en pantalla
 function mostrarDescripcionPintura(descripcion) {
@@ -967,6 +1349,14 @@ function verificarColisiones(nuevaPosicion) {
                 }
             }
         }
+        if (obj.tipo === 'columna') {
+            const dx = nuevaPosicion.x - obj.x;
+            const dz = nuevaPosicion.z - obj.z;
+            const distancia = Math.sqrt(dx * dx + dz * dz);
+            if (distancia < (obj.radio || 0.5) + margen) {
+                return false;
+            }
+        }
         // Colisión con modelos 3D
         if (obj.tipo === 'modelo3d' && obj.modelo) {
             // Recalcular bounding box en cada verificación (por si el modelo se mueve o anima)
@@ -1038,7 +1428,17 @@ function verificarVictoria() {
     }
 }
 
+function animate() {
+    requestAnimationFrame(animate);
 
+    const delta = clock.getDelta();
+
+    if (mixer) {
+        mixer.update(delta);
+    }
+
+    renderer.render(scene, camera);
+}
 
 // ========================
 // BUCLE PRINCIPAL
@@ -1058,35 +1458,14 @@ function animar(tiempoActual) {
         debugPanel.actualizar(camara, tiempoTranscurrido);
     }
 
-    actualizarPersonasCaminando(tiempoDelta);
+    if (mixer) {
+        mixer.update(tiempoDelta);
+    }
 
     // Música ambiental por habitación
     actualizarMusicaAmbiental();
-// Animación de personas caminando
-function actualizarPersonasCaminando(tiempoDelta) {
-    const margen = 0.5;
-    for (let persona of personas) {
-        // Movimiento en la dirección actual
-        let dir = persona.userData.direccion;
-        let vel = persona.userData.velocidad;
-        let dx = Math.cos(dir) * vel * tiempoDelta;
-        let dz = Math.sin(dir) * vel * tiempoDelta;
-        let nuevaPos = persona.position.clone();
-        nuevaPos.x += dx;
-        nuevaPos.z += dz;
 
-        // Verificar colisiones y límites
-        if (verificarColisiones(nuevaPos)) {
-            persona.position.copy(nuevaPos);
-        } else {
-            // Cambiar dirección aleatoriamente al chocar
-            persona.userData.direccion = Math.random() * Math.PI * 2;
-        }
 
-    // Rotar para mirar hacia donde camina (de frente, no de costado)
-    persona.rotation.y = -dir + Math.PI / 2;
-    }
-}
 
     renderizador.render(escena, camara);
 }
@@ -1112,71 +1491,117 @@ if (document.readyState !== 'loading') {
 // MÚSICA AMBIENTAL POR HABITACIÓN
 // ========================
 let musicaActual = null;
+let narracionActual = null;
 let musicaDefault = null;
 let narracionInicial = null;
 let narracionReproducida = false;
+
 const habitacionesMusica = [
     {
         nombre: 'Cuadrado 1',
         xMin: -30, xMax: -5, zMin: -20, zMax: -5,
-        audio: 'assets/audio/room1.mp3'
+        audio: 'assets/audio/room1.mp3',
+        voz: 'assets/audio/narracion_room1.mp3',
+        vozReproducida: false
     },
     {
         nombre: 'Cuadrado 2',
         xMin: -4, xMax: 20, zMin: -20, zMax: -5,
-        audio: 'assets/audio/room2.mp3'
+        audio: 'assets/audio/room2.mp3',
+        voz: 'assets/audio/narracion_room2.mp3',
+        vozReproducida: false
     },
     {
         nombre: 'Cuadrado 3',
         xMin: -30, xMax: -5, zMin: 5, zMax: 20,
-        audio: 'assets/audio/room3.mp3'
+        audio: 'assets/audio/lamanodedios.mp3',
+        voz: 'assets/audio/narracion_lamanodedios.mp3',
+        vozReproducida: false
     },
     {
         nombre: 'Cuadrado 4',
         xMin: -4, xMax: 20, zMin: 5, zMax: 20,
-        audio: 'assets/audio/room4.mp3'
+        audio: 'assets/audio/room4.mp3',
+        voz: 'assets/audio/narracion_room4.mp3',
+        vozReproducida: false
     }
 ];
 
 function inicializarMusicaAmbiental() {
-    // Preload audios
     habitacionesMusica.forEach(hab => {
         hab.audioObj = new Audio(hab.audio);
         hab.audioObj.loop = true;
         hab.audioObj.volume = 0.1;
+
+        hab.vozObj = new Audio(hab.voz);
+        hab.vozObj.loop = false;
+        hab.vozObj.volume = 0.3;
     });
-    // Música para zonas fuera de habitaciones
+
     musicaDefault = new Audio('assets/audio/default.mp3');
     musicaDefault.loop = true;
     musicaDefault.volume = 0.1;
 
-    // Narración inicial (se reproduce solo una vez)
     narracionInicial = new Audio('assets/audio/narracion_galeria.mp3');
     narracionInicial.loop = false;
-    narracionInicial.volume = 0.3; // Más alto que la música (0.1)
+    narracionInicial.volume = 0.3;
 }
+
+let habitacionActual = null;
 
 function actualizarMusicaAmbiental() {
     const pos = camara.position;
-    let nuevaMusica = null;
+    let nuevaHabitacion = null;
+
+    // Detectar si está dentro de alguna habitación
     for (const hab of habitacionesMusica) {
         if (pos.x >= hab.xMin && pos.x <= hab.xMax && pos.z >= hab.zMin && pos.z <= hab.zMax) {
-            nuevaMusica = hab.audioObj;
+            nuevaHabitacion = hab;
             break;
         }
     }
-    // Si no está en ninguna habitación, usar música default
-    if (!nuevaMusica) {
-        nuevaMusica = musicaDefault;
-    }
-    if (nuevaMusica !== musicaActual) {
+
+    // Cambio de habitación detectado
+    if (nuevaHabitacion !== habitacionActual) {
+        // Detener música actual
         if (musicaActual) {
             musicaActual.pause();
             musicaActual.currentTime = 0;
         }
-        if (nuevaMusica) {
-            nuevaMusica.play();
+        // Detener narración actual si la hay
+        if (narracionActual) {
+            narracionActual.pause();
+            narracionActual.currentTime = 0;
+            narracionActual = null;
         }
-        musicaActual = nuevaMusica;
+
+        // Si entró a una nueva habitación
+        if (nuevaHabitacion) {
+            musicaActual = nuevaHabitacion.audioObj;
+            musicaActual.play();
+            narracionInicial.pause();
+
+            // Reproducir narración solo la primera vez
+            if (!nuevaHabitacion.vozReproducida) {
+                narracionActual = nuevaHabitacion.vozObj;
+                nuevaHabitacion.vozReproducida = true;
+
+                // Pausar música de la habitación mientras habla la narración
+                musicaActual.pause();
+                narracionActual.play();
+
+                narracionActual.onended = () => {
+                    musicaActual.play();
+                };
+            }
+
+        } else {
+            // Está fuera de todas las habitaciones → música default
+            musicaActual = musicaDefault;
+            musicaActual.play();
+
+        }
+
+        habitacionActual = nuevaHabitacion;
     }
 }
